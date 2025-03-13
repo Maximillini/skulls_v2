@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react'
 
-const PHASES = ['opening', 'placing', 'betting', 'flipping']
+// const PHASES = ['opening', 'placing', 'betting', 'flipping']
 
-const game = {
-  running: false,
-  playerCount: 0,
-  playerTurn: null,
-  winner: null,
-  phase: PHASES[0]
-}
+// const game = {
+//   running: false,
+//   playerCount: 0,
+//   playerTurn: null,
+//   winner: null,
+//   phase: PHASES[0]
+// }
 
 export const Game = () => {
   const [gameState, setGameState] = useState(game)
