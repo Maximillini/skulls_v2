@@ -15,8 +15,37 @@
     grid-area: table;
   }
 
-  .player-1 {
+  .player {
     border: 1px solid #222;
-    grid-area: player1;
+    display: flex;
+    .hand {
+      .card {
+        background: purple;
+        border-radius: 50px;
+      }  
+    }
+
+    &.player-1 {
+      grid-area: player1;
+    }
+    &.player-2 {
+      grid-area: player2;
+    }
+    &.player-3,
+    &.player-4 {
+      display: flex;
+      flex-direction: column;
+      grid-area: player3;
+      .hand {
+        display: flex;
+        flex: 0 0 40%;
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+    &.player-4 {
+      grid-area: player4;
+    }
+
   }
 }

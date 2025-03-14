@@ -2,7 +2,7 @@ import { create } from 'zustand'
 
 const PHASES = ['opening', 'placing', 'betting', 'flipping']
 
-type Player = {
+export type Player = {
   id: number,
   name: string,
   hand: number[],
@@ -30,9 +30,16 @@ const fakePlayer: Player = {
   challengesWon: 0
 }
 
+const stubPlayers = {
+  1: fakePlayer,
+  2: {...fakePlayer, id: 2, name: 'Player-2'},
+  3: {...fakePlayer, id: 3, name: 'Player-3'},
+  4: {...fakePlayer, id: 4, name: 'Player-4'},
+}
+
 export const useGameStore = create<GameState>((set, get) => ({
   running: false,
-  players: { [fakePlayer.id]: fakePlayer },
+  players: stubPlayers,
   playerCount: () => Object.values(get().players).length,
   playerTurn: () => Object.values(get().players)[0],
   phases: PHASES,
