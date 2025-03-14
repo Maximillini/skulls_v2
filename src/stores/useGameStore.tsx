@@ -9,17 +9,24 @@ const game = {
   phase: PHASES[0]
 }
 **/
-const cyclePhase = (phases: typeof PHASES, idx: number) => {
-  if (idx === 4) return phases[0]
+const PHASES = ['opening', 'placing', 'betting', 'flipping']
 
-  return phases[idx + 1]
+type GameState = {
+  running: boolean,
+  players: [],
+  playerCount: number,
+  playerTurn: null,
+  phases: typeof PHASES,
+  phaseIdx: number,
+  advancePhase: () => void
 }
 
-export const useGameStore = create((set) => ({
-  running: false,
-  playerCount: 0,
-  playerTurn: null,
-  phases: ['opening', 'placing', 'betting', 'flipping'],
+export const useGameStore = create<GameState>((set, get) => ({
+  running: true,
+  players: [],
+  playerCount: get().players.length,
+  playerTurn: get().players[0] || null,
+  phases: PHASES,
   phaseIdx: 0,
-  advancePhase: () => set((state) => cyclePhase(state.phases, state.phaseIdx)),
+  advancePhase: () => set((state) => ({phaseIdx: state.phaseIdx === 3 ? 0 : state.phaseIdx + 1})),
 }))
