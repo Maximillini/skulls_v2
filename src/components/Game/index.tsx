@@ -11,6 +11,6 @@ export const Game = () => {
   // flipping - only player taking challenge - if player succeeds, move to next phase unless player wins game, if fails remove card and move to next phase
 
   return (
-    <><GameBoard /></>
+    <>Game Board<GameBoard /></>
   )
 }
