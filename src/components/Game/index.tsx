@@ -1,4 +1,5 @@
 import { useGameStore } from '../../stores/useGameStore'
+import { GameBoard } from '../GameBoard'
 
 export const Game = () => {
   const { running, playerCount } = useGameStore((state) => state)
@@ -10,6 +11,6 @@ export const Game = () => {
   // flipping - only player taking challenge - if player succeeds, move to next phase unless player wins game, if fails remove card and move to next phase
 
   return (
-    <>{playerCount}</>
+    <><GameBoard /></>
   )
 }
