@@ -6,6 +6,7 @@ export type Player = {
   id: number,
   name: string,
   hand: number[],
+  playedCards: number[]
   discarded: string[],
   challengesWon: 0 | 1 | 2
 }
@@ -24,8 +25,9 @@ type GameState = {
 
 const fakePlayer: Player = {
   id: 1,
-  name: 'Max',
+  name: 'Player-1',
   hand: [1, 1, 1, 0],
+  playedCards: [],
   discarded: [],
   challengesWon: 0
 }
