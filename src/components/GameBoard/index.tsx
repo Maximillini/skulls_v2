@@ -15,15 +15,24 @@ export const GameBoard = () => {
   )
 }
 
+const PlayerHand = ({ hand, isVisible }: { hand: Player['hand'], isVisible: boolean }) => {
+  return (
+    <div className="hand">
+      {hand.map((card) => (
+        <span className={`card ${isVisible ? 'face-up' : 'face-down'}`}>{isVisible ? card : null}</span>
+      ))}
+    </div>
+  )
+}
+
 const PlayerArea = ({ player }: { player: Player }) => {
   return (
     <div className={`player player-${player.id}`}>
-        {player.name}
-        <div className="hand">
-          {player.hand.map((card) => (
-            <span className="card">{card}</span>
-          ))}
+        <div className="player-name-area">
+          {player.name}
         </div>
+        <PlayerHand hand={player.hand} isVisible={player.id === 1 ? true : false}/>
+        <div className="discard">{player.discarded.map(() => <div className="discarded-card"></div>)}</div>
       </div>
   )
 }
