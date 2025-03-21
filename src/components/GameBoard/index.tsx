@@ -1,8 +1,8 @@
-import { useGameStore, Player } from '../../stores/useGameStore'
+import { useGameStateStore, Player } from '../../stores/useGameStore'
 import './styles.scss'
 
 export const GameBoard = () => {
-  const players = useGameStore((state) => state.players)
+  const players = useGameStateStore.use.players()
 
   return (
     <div className="game-board">
