@@ -1,4 +1,4 @@
-import { useGameStateStore } from '../../stores/useGameStore'
+import { useGameStateStore } from '../../stores'
 import { GameBoard } from '../GameBoard'
 
 export const Game = () => {
@@ -15,8 +15,8 @@ export const Game = () => {
     <>
       Game Board
       <br />
-      {`${isGameRunning}`}
-      <button onClick={startGame}>Start Game</button>
+      {/* {`${isGameRunning}`} */}
+      {/* <button onClick={startGame}>Start Game</button> */}
       <br />
       Phase: {`${phase.toUpperCase()}`}
       <GameBoard />

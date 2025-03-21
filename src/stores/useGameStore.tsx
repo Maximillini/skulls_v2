@@ -1,4 +1,4 @@
-import { create, StoreApi, UseBoundStore } from 'zustand'
+import { create } from 'zustand'
 
 const fakePlayer: Player = {
   id: 1,
@@ -23,7 +23,7 @@ const PHASES: Phase[] = ['opening', 'placing', 'betting', 'flipping']
 export type Player = {
   id: number,
   name: string,
-  hand: (0 | 1 | null)[],
+  hand: (0 | 1)[],
   playedCards: number[]
   discarded: string[],
   challengesWon: 0 | 1 | 2,
@@ -57,21 +57,15 @@ export const gameStore = create<GameState>((set, get) => ({
   phaseIdx: 0,
   phase: 'opening',
   startNextPhase: () => {
-    const { phase, players, isGameRunning } = get()
-
-    // if (!isGameRunning) return
+    const { phase, players } = get()
 
     if (phase === 'opening') {
       const allPlaced = Object.values(players).every((p) => p.ready)
-
-      console.log({ allPlaced })
 
       if (allPlaced) {
         set({ phase: 'placing' })
       }
     }
-
-    console.log(get())
   },
   placeCard: (playerId: number, card: 0 | 1) => {
     if (get().players[playerId].ready) return
@@ -98,16 +92,15 @@ export const gameStore = create<GameState>((set, get) => ({
   },
   handleComputerTurns: () => {
     const { players, phase, placeCard } = get()
-    let i = 0
-    
     if (phase !== 'opening' && phase !== 'placing') return
     
     Object.values(players).find((player) => {
       if (player.isComputer && !player.ready) {
-        console.log({ player }, i++)
-        const randCard = player.hand[Math.floor(Math.random() * player.hand.length)]
+        setTimeout(() => {
+          const randCard = player.hand[Math.floor(Math.random() * player.hand.length)]
 
-        placeCard(player.id, randCard)
+          placeCard(player.id, randCard)
+        }, Math.random() * 1200)
       }
     })
   },
@@ -115,21 +108,3 @@ export const gameStore = create<GameState>((set, get) => ({
   startGame: () => set(() => ({ isGameRunning: true })),
   addPlayer: (player) => set((state) => ({ players: { ...state.players, [player.id]: player }})),
 }))
-
-type WithSelectors<S> = S extends { getState: () => infer T }
-  ? S & { use: { [K in keyof T]: () => T[K] } }
-  : never
-
-const createSelectors = <S extends UseBoundStore<StoreApi<object>>>(
-  _store: S,
-) => {
-  const store = _store as WithSelectors<typeof _store>
-  store.use = {}
-  for (const k of Object.keys(store.getState())) {
-    (store.use as any)[k] = () => store((s) => s[k as keyof typeof s])
-  }
-
-  return store
-}
-
-export const useGameStateStore = createSelectors(gameStore)

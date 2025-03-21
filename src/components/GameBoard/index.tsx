@@ -1,4 +1,5 @@
-import { useGameStateStore, Player } from '../../stores/useGameStore'
+import { Player } from '../../stores/useGameStore'
+import { useGameStateStore } from '../../stores'
 import './styles.scss'
 
 export const GameBoard = () => {
