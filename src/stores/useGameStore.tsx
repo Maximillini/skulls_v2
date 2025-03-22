@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { devtools } from 'zustand/middleware'
 
 const fakePlayer: Player = {
   id: 1,
@@ -36,39 +37,43 @@ type GameState = {
   isGameRunning: boolean,
   players: Record<number, Player>,
   playerCount: () => number,
-  playerTurn: () => Player,
+  playerTurn: Player,
   phases: typeof PHASES
   phaseIdx: number,
   phase: Phase,
   startNextPhase: () => void,
+  allPlayersReady: () => boolean
   placeCard: (playerId: number, card: 0 | 1) => void,
   handleComputerTurns: () => void,
   advancePhase: () => void,
+  resetPlayerReadyStatus: () => void,
+  changeToPhase: (phase: Phase) => void, 
   startGame: () => void,
   addPlayer: (player: Player) => void,
 }
 
-export const gameStore = create<GameState>((set, get) => ({
+export const gameStore = create<GameState>()(devtools((set, get) => ({
   isGameRunning: false,
   players: stubPlayers,
   playerCount: () => Object.values(get().players).length,
-  playerTurn: () => Object.values(get().players)[0],
+  playerTurn: stubPlayers[2],
   phases: PHASES,
   phaseIdx: 0,
-  phase: 'opening',
+  phase: 'opening' as Phase,
   startNextPhase: () => {
-    const { phase, players } = get()
+    const { phase, changeToPhase, allPlayersReady, players } = get()
 
-    if (phase === 'opening') {
-      const allPlaced = Object.values(players).every((p) => p.ready)
-
-      if (allPlaced) {
-        set({ phase: 'placing' })
-      }
+    if (phase === 'opening' && allPlayersReady()) {
+      changeToPhase('placing')
+      set({ playerTurn: players[Math.floor(Math.random() * Object.values(players).length)] })
     }
   },
+  allPlayersReady: () => ((state: GameState) => (Object.values(state.players).every((p) => p.ready))),
   placeCard: (playerId: number, card: 0 | 1) => {
     if (get().players[playerId].ready) return
+
+    console.log({ playerId })
+
     set((state) => ({
       players: {
         ...state.players,
@@ -88,7 +93,7 @@ export const gameStore = create<GameState>((set, get) => ({
     }))
 
     get().handleComputerTurns()
-    get().startNextPhase()
+    if (get().phase === 'opening') get().startNextPhase()
   },
   handleComputerTurns: () => {
     const { players, phase, placeCard } = get()
@@ -97,14 +102,37 @@ export const gameStore = create<GameState>((set, get) => ({
     Object.values(players).find((player) => {
       if (player.isComputer && !player.ready) {
         setTimeout(() => {
-          const randCard = player.hand[Math.floor(Math.random() * player.hand.length)]
+          const randCard = player.hand[Math.floor(Math.random() * player.hand.length - 1)]
 
           placeCard(player.id, randCard)
         }, Math.random() * 1200)
       }
     })
   },
+  passTurn: () => {
+    const { playerTurn, phase, players } = get()
+
+    if (phase !== 'placing' && phase !== 'betting') return
+
+    const playerId = playerTurn.id 
+
+    if (playerId === 4) {
+      set({ playerTurn: players[1] })
+    } else {
+      set({ playerTurn: players[playerId + 1]})
+    }
+  },
+  resetPlayerReadyStatus: () => (set((state) => ({
+    players: Object.keys(state.players).reduce<Record<string, Player>>((acc, playerId) => ({
+      ...acc,
+      [playerId]: {
+        ...state.players[playerId],
+        ready: false
+      }
+    }), {}),
+  }))),
+  changeToPhase: (phase: Phase) => set({ phase }),
   // advancePhase: () => set((state) => ({phaseIdx: state.phaseIdx === 3 ? 0 : state.phaseIdx + 1, phase:})),
   startGame: () => set(() => ({ isGameRunning: true })),
   addPlayer: (player) => set((state) => ({ players: { ...state.players, [player.id]: player }})),
-}))
+})))
