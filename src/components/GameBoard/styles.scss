@@ -3,8 +3,8 @@
   color: #222;
   display: grid;
   height: 90vh;
-  grid-template-areas: ". player2 ."
-                       "player3 table player4"
+  grid-template-areas: ". player3 ."
+                       "player2 table player4"
                        ". player1 .";
   grid-template-columns: 1fr 3fr 1fr;
   grid-template-rows: 1fr 3fr 1fr;

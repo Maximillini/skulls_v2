@@ -29,6 +29,10 @@ export const GameBoard = () => {
 const PlayerArea = ({ player }: { player: Player }) => {
   const phase = useGameStateStore.use.phase()
   const placeCard = useGameStateStore.use.placeCard()
+  const playerTurn = useGameStateStore.use.playerTurn()
+  const changeToPhase = useGameStateStore.use.changeToPhase()
+
+  console.log({playerTurn})
 
   const handlePlaceCard = (card: 0 | 1) => {
     if (phase === 'opening' && !player.ready) placeCard(player.id, card)
@@ -37,20 +41,23 @@ const PlayerArea = ({ player }: { player: Player }) => {
   const cardOrientation = (card: 0 | 1) => (
     player.id === 1 ? 
     <span className="card face-up" onClick={() => handlePlaceCard(card)}>{card === 1 ? '🌸' : '💀'}</span> :
-    <span className="card face-down"></span>   
+    <span className="card face-down"></span>
   )
 
   return (
-    <div className={`player player-${player.id} ${player.ready ? 'ready' : 'idle'}`}>
-        <div className="player-name-area">
-          {player.name}
-          <br />
-          {player.ready ? "Ready" : "Idle"}
-        </div>
-        <div className="hand">
-          {player.hand.map(cardOrientation)}
-        </div>
-        <div className="discard">{player.discarded.map(() => <div className="discarded-card"></div>)}</div>
+    <div className={`player player-${player.id} ${player.ready ? 'ready' : 'idle'} ${playerTurn.id === player.id ? 'current' : ''}`}>
+      <div className="player-name-area">
+        {player.name}
+        <br />
+        {player.ready ? "Ready" : "Idle"}
+        <br />
+        {phase === 'placing' && player.id === 1 && <button onClick={() => changeToPhase('betting')} disabled={playerTurn.id !== 1}>Place Bet</button>}
       </div>
+      <div className="hand">
+        {player.hand.map(cardOrientation)}
+      </div>
+      <div className="discard">{player.discarded.map(() => <div className="discarded-card"></div>)}</div>
+      <div className="play-mat card">{player.playedCards}</div>
+    </div>
   )
 }
