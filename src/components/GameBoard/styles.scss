@@ -15,11 +15,16 @@
     grid-area: table;
   }
 
+  .card {
+    user-select: none;
+  }
+
   .player {
     border: 1px solid #222;
     display: flex;
     justify-content: space-evenly;
     align-items: center;
+    position: relative;
     .hand {
       display: flex;
       .card {
