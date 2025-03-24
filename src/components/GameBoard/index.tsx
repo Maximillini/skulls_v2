@@ -1,12 +1,17 @@
-import { Player } from '../../stores/useGameStore'
-import { useGameStateStore } from '../../stores'
+import { useRef } from 'react'
+import { Player } from '../../types'
+import { useGameStateStore } from '../../store'
 import './styles.scss'
 
 export const GameBoard = () => {
+  const renders = useRef(0)
   const players = useGameStateStore.use.players()
+
+  renders.current = renders.current + 1
 
   return (
     <div className="game-board">
+      <div>GameBoard renders: {renders.current}</div>
       <div className="table"></div>
       <PlayerArea player={players[1]} />
       <PlayerArea player={players[2]} />
@@ -16,26 +21,26 @@ export const GameBoard = () => {
   )
 }
 
-// const PlayerHand = ({ hand, isVisible }: { hand: Player['hand'], isVisible: boolean }) => {
-//   return (
-//     <div className="hand">
-//       {hand.map((card) => (
-//         <span className={`card ${isVisible ? 'face-up' : 'face-down'}`}>{isVisible ? card : null}</span>
-//       ))}
-//     </div>
-//   )
-// }
-
 const PlayerArea = ({ player }: { player: Player }) => {
+  const renders = useRef(0)
   const phase = useGameStateStore.use.phase()
   const placeCard = useGameStateStore.use.placeCard()
   const playerTurn = useGameStateStore.use.playerTurn()
   const changeToPhase = useGameStateStore.use.changeToPhase()
+  const handleComputerTurns = useGameStateStore.use.handleComputerTurns()
 
-  console.log({playerTurn})
+  console.log({ playerTurn })
+
+  const canSelectCard = () => (
+    (phase === 'opening' && !player.ready) ||
+    (phase === 'placing' && playerTurn.id === 1)
+  )
 
   const handlePlaceCard = (card: 0 | 1) => {
-    if (phase === 'opening' && !player.ready) placeCard(player.id, card)
+    if(canSelectCard()) {
+      placeCard(1, card)
+      handleComputerTurns()
+    }
   }
 
   const cardOrientation = (card: 0 | 1) => (
@@ -44,8 +49,11 @@ const PlayerArea = ({ player }: { player: Player }) => {
     <span className="card face-down"></span>
   )
 
+  renders.current = renders.current + 1
+
   return (
-    <div className={`player player-${player.id} ${player.ready ? 'ready' : 'idle'} ${playerTurn.id === player.id ? 'current' : ''}`}>
+    <div className={`player player-${player.id} ${canSelectCard() ? 'idle' : 'ready'} ${playerTurn.id === player.id ? 'current' : ''}`}>
+      <div>renders: {renders.current}</div>
       <div className="player-name-area">
         {player.name}
         <br />
