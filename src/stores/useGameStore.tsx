@@ -18,8 +18,8 @@ const stubPlayers = {
   4: {...fakePlayer, id: 4, name: 'Player-4', isComputer: true },
 }
 
-type Phase = 'opening' | 'placing' | 'betting' | 'flipping'
-const PHASES: Phase[] = ['opening', 'placing', 'betting', 'flipping']
+type Phase = 'opening' | 'placing' | 'betting' | 'flipping' | 'discarding'
+const PHASES: Phase[] = ['opening', 'placing', 'betting', 'flipping', 'discarding']
 
 export type Player = {
   id: number,
@@ -42,14 +42,20 @@ type GameState = {
   phaseIdx: number,
   phase: Phase,
   startNextPhase: () => void,
-  allPlayersReady: () => boolean
   placeCard: (playerId: number, card: 0 | 1) => void,
   handleComputerTurns: () => void,
+  passTurn: () => void,
   advancePhase: () => void,
   resetPlayerReadyStatus: () => void,
   changeToPhase: (phase: Phase) => void, 
   startGame: () => void,
   addPlayer: (player: Player) => void,
+}
+
+const getRandomCard = (player: Player) => player.hand[Math.floor(Math.random() * player.hand.length - 1)]
+const allPlayersReady = (players: Record<number, Player>) => Object.values(players).every((player) => player.ready)
+const checkAllPlayers = (players: Record<number, Player>, fn: (player: Player) => boolean) => {
+  Object.values(players).every(fn)
 }
 
 export const gameStore = create<GameState>()(devtools((set, get) => ({
@@ -61,14 +67,13 @@ export const gameStore = create<GameState>()(devtools((set, get) => ({
   phaseIdx: 0,
   phase: 'opening' as Phase,
   startNextPhase: () => {
-    const { phase, changeToPhase, allPlayersReady, players } = get()
+    const { phase, changeToPhase, players } = get()
 
-    if (phase === 'opening' && allPlayersReady()) {
+    if (phase === 'opening' && allPlayersReady(players)) {
       changeToPhase('placing')
       set({ playerTurn: players[Math.floor(Math.random() * Object.values(players).length)] })
     }
   },
-  allPlayersReady: () => ((state: GameState) => (Object.values(state.players).every((p) => p.ready))),
   placeCard: (playerId: number, card: 0 | 1) => {
     if (get().players[playerId].ready) return
 
@@ -96,25 +101,42 @@ export const gameStore = create<GameState>()(devtools((set, get) => ({
     if (get().phase === 'opening') get().startNextPhase()
   },
   handleComputerTurns: () => {
-    const { players, phase, placeCard } = get()
+    const { players, phase, placeCard, playerTurn, passTurn } = get()
     if (phase !== 'opening' && phase !== 'placing') return
     
-    Object.values(players).find((player) => {
-      if (player.isComputer && !player.ready) {
-        setTimeout(() => {
-          const randCard = player.hand[Math.floor(Math.random() * player.hand.length - 1)]
+    if (phase === 'opening') {
+      Object.values(players).find((player) => {
+        if (player.isComputer && !player.ready) {
+          setTimeout(() => {
+            const randCard = getRandomCard(player)
+  
+            placeCard(player.id, randCard)
+          }, Math.random() * 1200)
+        }
+      })
+    }
 
-          placeCard(player.id, randCard)
-        }, Math.random() * 1200)
-      }
-    })
+    if (phase === 'placing' && playerTurn?.isComputer && checkAllPlayers(players, (player) => player.playedCards.length === 1)) {
+      const computerPlayer = players[playerTurn.id]
+
+      console.log({ computerPlayer })
+
+      setTimeout(() => {
+        debugger
+        // TODO - add logic to decide whether to bet or place card, and which card to place
+        placeCard(computerPlayer.id, getRandomCard(computerPlayer))
+        passTurn()
+      }, Math.random() * 2000)
+    }
   },
   passTurn: () => {
     const { playerTurn, phase, players } = get()
 
     if (phase !== 'placing' && phase !== 'betting') return
 
-    const playerId = playerTurn.id 
+    const playerId = playerTurn.id
+
+    debugger
 
     if (playerId === 4) {
       set({ playerTurn: players[1] })
@@ -132,7 +154,6 @@ export const gameStore = create<GameState>()(devtools((set, get) => ({
     }), {}),
   }))),
   changeToPhase: (phase: Phase) => set({ phase }),
-  // advancePhase: () => set((state) => ({phaseIdx: state.phaseIdx === 3 ? 0 : state.phaseIdx + 1, phase:})),
   startGame: () => set(() => ({ isGameRunning: true })),
   addPlayer: (player) => set((state) => ({ players: { ...state.players, [player.id]: player }})),
 })))
