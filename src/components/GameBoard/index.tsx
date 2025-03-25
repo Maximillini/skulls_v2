@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import { Player } from '../../types'
 import { useGameStateStore } from '../../store'
+import { usePlayerAreaActions } from '../../hooks/usePlayerAreaActions'
 import './styles.scss'
 
 export const GameBoard = () => {
@@ -23,13 +24,7 @@ export const GameBoard = () => {
 
 const PlayerArea = ({ player }: { player: Player }) => {
   const renders = useRef(0)
-  const phase = useGameStateStore.use.phase()
-  const placeCard = useGameStateStore.use.placeCard()
-  const playerTurn = useGameStateStore.use.playerTurn()
-  const changeToPhase = useGameStateStore.use.changeToPhase()
-  const handleComputerTurns = useGameStateStore.use.handleComputerTurns()
-
-  console.log({ playerTurn })
+  const { phase, placeCard, playerTurn, handleComputerTurns, passTurn, changeToPhase } = usePlayerAreaActions()
 
   const canSelectCard = () => (
     (phase === 'opening' && !player.ready) ||
@@ -37,8 +32,15 @@ const PlayerArea = ({ player }: { player: Player }) => {
   )
 
   const handlePlaceCard = (card: 0 | 1) => {
-    if(canSelectCard()) {
+    if (!canSelectCard()) return
+    if(phase === 'opening') {
       placeCard(1, card)
+      handleComputerTurns()
+    }
+
+    if (phase === 'placing') {
+      placeCard(1, card)
+      passTurn()
       handleComputerTurns()
     }
   }
