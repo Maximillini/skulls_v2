@@ -33,14 +33,15 @@ export const createPlayerSlice: StateCreator<GameState, [], [], PlayerSlice> = (
   },
 
   handleComputerTurns: () => {
-    const { players, phase, placeCard, playerTurn, passTurn, handleComputerTurns } = get()
+    const { players, phase, placeCard, playerTurn, passTurn, handleComputerTurns, startNextPhase } = get()
     if (phase !== 'opening' && phase !== 'placing') return
     
     console.log({ allPlayersPlaced: checkAllPlayers(players, (player) => player.playedCards.length === 1)})
+
     if (phase === 'opening') {
-      if (!checkAllPlayers(players, (player) => player.playedCards.length === 1)) {
+      if (!allPlayersPlacedOne(players)) {
         const computerPlayer = Object.values(players).find((player) => player.isComputer && !player.ready)
-        console.log({ computerPlayer })
+
         if (computerPlayer === undefined) return 
         if (computerPlayer?.playedCards.length !== 1) {
           setTimeout(() => {
@@ -51,18 +52,27 @@ export const createPlayerSlice: StateCreator<GameState, [], [], PlayerSlice> = (
           }, Math.random() * 1200)
         }
       }
+
+      if (allPlayersReady(players) && allPlayersPlacedOne(players)) {
+        startNextPhase()
+      }
     }
 
     if (phase === 'placing' && playerTurn?.isComputer) {
       const computerPlayer = playerTurn
 
+      console.log(!computerPlayer)
       if (!computerPlayer) return
+
+      console.log(computerPlayer, !computerPlayer)
+
+      if (computerPlayer.hand.length === 0) return startNextPhase()
 
       setTimeout(() => {
         placeCard(computerPlayer.id, getRandomCard(computerPlayer))
         passTurn()
         handleComputerTurns()
-      }, Math.random() * 2000)
+      }, Math.random() * 2600)
     }
   }
 })
