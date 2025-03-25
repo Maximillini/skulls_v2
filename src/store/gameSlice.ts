@@ -1,5 +1,5 @@
 import { StateCreator } from 'zustand';
-import { allPlayersReady } from './utils';
+import { allPlayersPlacedOne, allPlayersReady } from './utils';
 import { Phase, GameSlice, GameState } from '../types'
 
 const PHASES: Phase[] = ['opening', 'placing', 'betting', 'flipping', 'discarding']
@@ -13,10 +13,16 @@ export const createGameSlice: StateCreator<GameState, [], [], GameSlice> = (set,
   startGame: () => set(() => ({ isGameRunning: true })),
   changeToPhase: (phase) => set({ phase }),
   startNextPhase: () => {
-    const { phase, changeToPhase, players, resetPlayerReadyStatus } = get()
-    
-    if (phase === 'opening' && allPlayersReady(players)) {
+    const { phase, changeToPhase, players, resetPlayerReadyStatus, playerTurn, handleComputerTurns } = get()
+    console.log(allPlayersReady(players))
+    if (phase === 'opening' && allPlayersReady(players) && allPlayersPlacedOne(players)) {
       changeToPhase('placing')
+      resetPlayerReadyStatus()
+      if (playerTurn.isComputer) handleComputerTurns()
+    }
+
+    if (phase === 'placing') {
+      changeToPhase('betting')
       resetPlayerReadyStatus()
     }
   }
