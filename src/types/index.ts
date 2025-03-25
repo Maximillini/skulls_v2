@@ -7,8 +7,11 @@ export type Player = {
   challengesWon: 0 | 1 | 2,
   // TODO - Think of more descriptive name than 'ready'
   ready: boolean,
-  isComputer?: boolean
+  isComputer?: boolean,
+  hasPassedBetting: boolean
 }
+
+export type Players = Record<number, Player>
 
 export type GameSlice = {
   isGameRunning: boolean,

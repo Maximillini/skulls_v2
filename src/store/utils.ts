@@ -1,11 +1,13 @@
 import { StoreApi, UseBoundStore } from 'zustand'
-import { Player } from "../types"
+import { Player, Players } from "../types"
 
-export const allPlayersReady = (players: Record<number, Player>) => 
+export const allPlayersReady = (players: Players) => 
   Object.values(players).every((player) => player.ready)
 
+export const allPlayersPlacedOne = (players: Players) => Object.values(players).every((player) => player.playedCards.length === 1)
+
 export const checkAllPlayers = (
-  players: Record<number, Player>, fn: (player: Player) => boolean
+  players: Players, fn: (player: Player) => boolean
 ) => (Object.values(players).every(fn))
 
 export const getRandomCard = (player: Player) => 
@@ -38,7 +40,8 @@ const fakePlayer: Player = {
   playedCards: [],
   discarded: [],
   challengesWon: 0,
-  ready: false
+  ready: false,
+  hasPassedBetting: false
 }
 
 export const stubPlayers = {
