@@ -1,6 +1,6 @@
 import { StateCreator } from 'zustand'
 import { GameState, PlayerSlice, Player } from '../types'
-import { getRandomCard, checkAllPlayers, stubPlayers } from './utils'
+import { getRandomCard, checkAllPlayers, stubPlayers, allPlayersReady, allPlayersPlacedOne } from './utils'
 
 export const createPlayerSlice: StateCreator<GameState, [], [], PlayerSlice> = (set, get) => ({
   players: stubPlayers,
@@ -8,7 +8,8 @@ export const createPlayerSlice: StateCreator<GameState, [], [], PlayerSlice> = (
   addPlayer: (player: Player) => set((state) => ({ players: { ...state.players, [player.id]: player } })),
 
   resetPlayerReadyStatus: () => set((state) => ({
-    players: Object.fromEntries((Object.entries(state.players).map(([id, player]) => [id, { ...player, ready: false }])))
+    players: Object.fromEntries((Object.entries(state.players).map(([id, player]) => 
+      [id, { ...player, ready: false }])))
   })),
 
   // KEEP THIS FUNCTION PURE
@@ -60,11 +61,7 @@ export const createPlayerSlice: StateCreator<GameState, [], [], PlayerSlice> = (
 
     if (phase === 'placing' && playerTurn?.isComputer) {
       const computerPlayer = playerTurn
-
-      console.log(!computerPlayer)
       if (!computerPlayer) return
-
-      console.log(computerPlayer, !computerPlayer)
 
       if (computerPlayer.hand.length === 0) return startNextPhase()
 

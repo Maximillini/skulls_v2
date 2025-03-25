@@ -14,7 +14,7 @@ export const createGameSlice: StateCreator<GameState, [], [], GameSlice> = (set,
   changeToPhase: (phase) => set({ phase }),
   startNextPhase: () => {
     const { phase, changeToPhase, players, resetPlayerReadyStatus, playerTurn, handleComputerTurns } = get()
-    console.log(allPlayersReady(players))
+    
     if (phase === 'opening' && allPlayersReady(players) && allPlayersPlacedOne(players)) {
       changeToPhase('placing')
       resetPlayerReadyStatus()
