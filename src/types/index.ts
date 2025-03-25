@@ -7,7 +7,7 @@ export type Player = {
   challengesWon: 0 | 1 | 2,
   // TODO - Think of more descriptive name than 'ready'
   ready: boolean,
-  isComputer?: true
+  isComputer?: boolean
 }
 
 export type GameSlice = {
@@ -29,7 +29,7 @@ export type PlayerSlice = {
 }
 
 export type TurnSlice = {
-  playerTurn: () => Player,
+  playerTurn: Player,
   passTurn: () => void,
 }
 

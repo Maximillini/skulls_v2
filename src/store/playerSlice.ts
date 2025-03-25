@@ -1,23 +1,6 @@
 import { StateCreator } from 'zustand'
 import { GameState, PlayerSlice, Player } from '../types'
-import { getRandomCard, checkAllPlayers } from './utils'
-
-const fakePlayer: Player = {
-  id: 1,
-  name: 'Player-1',
-  hand: [1, 1, 1, 0],
-  playedCards: [],
-  discarded: [],
-  challengesWon: 0,
-  ready: false
-}
-
-const stubPlayers = {
-  1: fakePlayer,
-  2: {...fakePlayer, id: 2, name: 'Player-2', isComputer: true },
-  3: {...fakePlayer, id: 3, name: 'Player-3', isComputer: true },
-  4: {...fakePlayer, id: 4, name: 'Player-4', isComputer: true },
-}
+import { getRandomCard, checkAllPlayers, stubPlayers } from './utils'
 
 export const createPlayerSlice: StateCreator<GameState, [], [], PlayerSlice> = (set, get) => ({
   players: stubPlayers,
