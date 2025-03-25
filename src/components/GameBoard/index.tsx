@@ -32,8 +32,15 @@ const PlayerArea = ({ player }: { player: Player }) => {
   )
 
   const handlePlaceCard = (card: 0 | 1) => {
-    if(canSelectCard()) {
+    if (!canSelectCard()) return
+    if(phase === 'opening') {
       placeCard(1, card)
+      handleComputerTurns()
+    }
+
+    if (phase === 'placing') {
+      placeCard(1, card)
+      passTurn()
       handleComputerTurns()
     }
   }
