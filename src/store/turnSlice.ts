@@ -7,7 +7,7 @@ export const createTurnSlice: StateCreator<GameState, [], [], TurnSlice> = (set,
 
   passTurn: () => {
     const { playerTurn } = get()
-    const activePlayers = getActivePlayers(get().players)
+    const activePlayers = getActivePlayers()
     const lastActivePlayer = activePlayers[activePlayers.length - 1]
     const currentActivePlayerIndex = getPlayerIndexById(activePlayers, playerTurn.id)
 

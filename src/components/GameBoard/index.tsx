@@ -24,7 +24,7 @@ export const GameBoard = () => {
 
 const PlayerArea = ({ player }: { player: Player }) => {
   const renders = useRef(0)
-  const { phase, placeCard, placeBet, passBet, playerTurn, handleComputerTurns, passTurn, changeToPhase } = usePlayerAreaActions()
+  const { phase, placeCard, deactivatePlayer, passBet, playerTurn, handleComputerTurns, passTurn, changeToPhase } = usePlayerAreaActions()
 
   const canSelectCard = () => (
     (phase === 'opening' && !player.ready) ||
@@ -33,6 +33,7 @@ const PlayerArea = ({ player }: { player: Player }) => {
 
   const handlePlaceCard = (card: 0 | 1) => {
     if (!canSelectCard()) return
+    
     if(phase === 'opening') {
       placeCard(1, card)
       handleComputerTurns()
@@ -47,10 +48,18 @@ const PlayerArea = ({ player }: { player: Player }) => {
 
   const handlePassBet = () => {
     passBet(1)
+    deactivatePlayer(player)
     passTurn()
     handleComputerTurns()
   }
 
+  /**
+   * Function to determine if cards should be displayed or hidden, depending on the player
+   * 
+   * @param card 0 or 1 with 1 representing flowers and 0 representing a skull, used only for user player
+   * @param idx index of the card in player's hand, used to create a more unique key
+   * @returns <span> tag that either shows the card face with value or card back without value
+   */
   const cardOrientation = (card: 0 | 1, idx: number) => (
     player.id === 1 ? 
     <span className="card face-up" onClick={() => handlePlaceCard(card)} key={`${player.name}${idx}`}>{card === 1 ? '🌸' : '💀'}</span> :
