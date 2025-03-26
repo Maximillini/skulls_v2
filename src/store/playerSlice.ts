@@ -1,6 +1,6 @@
 import { StateCreator } from 'zustand'
 import { GameState, PlayerSlice, Player } from '../types'
-import { getRandomCard, stubPlayers, allPlayersReady, allPlayersPlacedOne, getNewTurnOrder } from './utils'
+import { getRandomCard, stubPlayers, allPlayersReady, allPlayersPlacedOne } from './utils'
 
 export const createPlayerSlice: StateCreator<GameState, [], [], PlayerSlice> = (set, get) => ({
   players: stubPlayers,
@@ -69,7 +69,6 @@ export const createPlayerSlice: StateCreator<GameState, [], [], PlayerSlice> = (
     }))
   },
 
-
   // TODO - Split this function into smaller functions for each specific phase
   handleComputerTurns: () => {
     const { 
@@ -128,7 +127,6 @@ export const createPlayerSlice: StateCreator<GameState, [], [], PlayerSlice> = (
         passTurn()
         handleComputerTurns()
       }, Math.random() * 2000)
-      console.log({ maxBet })
     }
   }
 })
