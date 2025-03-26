@@ -24,7 +24,7 @@ export const GameBoard = () => {
 
 const PlayerArea = ({ player }: { player: Player }) => {
   const renders = useRef(0)
-  const { phase, placeCard, playerTurn, handleComputerTurns, passTurn, changeToPhase } = usePlayerAreaActions()
+  const { phase, placeCard, placeBet, passBet, playerTurn, handleComputerTurns, passTurn, changeToPhase } = usePlayerAreaActions()
 
   const canSelectCard = () => (
     (phase === 'opening' && !player.ready) ||
@@ -45,10 +45,23 @@ const PlayerArea = ({ player }: { player: Player }) => {
     }
   }
 
-  const cardOrientation = (card: 0 | 1) => (
+  const handlePassBet = () => {
+    passBet(1)
+    passTurn()
+    handleComputerTurns()
+  }
+
+  const cardOrientation = (card: 0 | 1, idx: number) => (
     player.id === 1 ? 
-    <span className="card face-up" onClick={() => handlePlaceCard(card)}>{card === 1 ? '🌸' : '💀'}</span> :
-    <span className="card face-down"></span>
+    <span className="card face-up" onClick={() => handlePlaceCard(card)} key={`${player.name}${idx}`}>{card === 1 ? '🌸' : '💀'}</span> :
+    <span className="card face-down" key={`${player.name}${idx}`}></span>
+  )
+
+  const userActionButtons = () => (
+    <>
+      {phase === 'placing' && player.id === 1 && <button onClick={() => changeToPhase('betting')} disabled={playerTurn.id !== 1}>Place Bet</button>}
+      {phase === 'betting' && player.id === 1 && <button onClick={handlePassBet}>Pass</button>}
+    </>
   )
 
   renders.current = renders.current + 1
@@ -61,7 +74,7 @@ const PlayerArea = ({ player }: { player: Player }) => {
         <br />
         {player.ready ? "Ready" : "Idle"}
         <br />
-        {phase === 'placing' && player.id === 1 && <button onClick={() => changeToPhase('betting')} disabled={playerTurn.id !== 1}>Place Bet</button>}
+        {userActionButtons()}
       </div>
       <div className="hand">
         {player.hand.map(cardOrientation)}
