@@ -57,6 +57,20 @@ export const createPlayerSlice: StateCreator<GameState, [], [], PlayerSlice> = (
     set({ currentHighBet: bet })
   },
 
+  passBet: (playerId) => { 
+    set((state) => ({
+      players: {
+        ...state.players,
+        [playerId]: { 
+          ...state.players[playerId],
+          hasPassedBetting: true 
+        }
+      }
+    }))
+  },
+
+
+  // TODO - Split this function into smaller functions for each specific phase
   handleComputerTurns: () => {
     const { players, phase, placeCard, playerTurn, passTurn, handleComputerTurns, startNextPhase } = get()
 
