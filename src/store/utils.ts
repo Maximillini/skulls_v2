@@ -13,8 +13,16 @@ export const checkAllPlayers = (
 export const getRandomCard = (player: Player) => 
   player.hand[Math.floor(Math.random() * (player.hand.length - 1))]
 
-export const getRandomPlayer = (players: Record<string, Player>) => (
+export const getRandomPlayer = (players: Record<number, Player>) => (
   players[Math.floor(Math.random() * (Object.values(players).length - 1))]
+)
+
+export const getActivePlayers = (players: Record<number, Player>) => (
+  Object.values(players).filter((player) => !player.isInactive)  
+)
+
+export const getPlayerIndexById = (players: Record<number, Player>, playerId: number) => (
+  Object.values(players).findIndex((player) => player.id === playerId)
 )
 
 type WithSelectors<S> = S extends { getState: () => infer T }
@@ -41,7 +49,9 @@ const fakePlayer: Player = {
   discarded: [],
   challengesWon: 0,
   ready: false,
-  hasPassedBetting: false
+  hasPassedBetting: false,
+  currentBet: 0,
+  isInactive: false
 }
 
 export const stubPlayers = {

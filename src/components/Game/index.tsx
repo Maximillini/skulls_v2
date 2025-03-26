@@ -4,6 +4,7 @@ import { GameBoard } from '../GameBoard'
 export const Game = () => {
   const phase = useGameStateStore.use.phase()
   const playerTurn = useGameStateStore.use.playerTurn()
+  const currentHighBet = useGameStateStore.use.currentHighBet()
   // phase progression:
   // opening - have all players placed a card? y - move to next phase
   // placing - player turn matters here - if player places card move to next player - if player bets, move to next phase
@@ -15,6 +16,8 @@ export const Game = () => {
       Game Board
       <br />
       {phase !== 'opening' && `Current Turn: ${playerTurn.name}`}
+      <br />
+      {phase === 'betting' && `Current Bet: ${currentHighBet}`}
       <br />
       Phase: {`${phase.toUpperCase()}`}
       <GameBoard />

@@ -1,13 +1,16 @@
 import { StateCreator } from 'zustand'
 import { GameState, TurnSlice } from '../types'
-import { stubPlayers } from './utils'
+import { getActivePlayers, getPlayerIndexById, stubPlayers } from './utils'
 
 export const createTurnSlice: StateCreator<GameState, [], [], TurnSlice> = (set, get) => ({
   playerTurn: stubPlayers[2],
 
   passTurn: () => {
-    const { playerTurn, players } = get()
+    const { playerTurn } = get()
+    const activePlayers = getActivePlayers(get().players)
+    const lastActivePlayer = activePlayers[activePlayers.length - 1]
+    const currentActivePlayerIndex = getPlayerIndexById(activePlayers, playerTurn.id)
 
-    set({ playerTurn: players[playerTurn.id === 4 ? 1 : playerTurn.id + 1]})
+    set({ playerTurn: playerTurn.id === lastActivePlayer.id ? activePlayers[0] : activePlayers[currentActivePlayerIndex + 1] })
   }
 })

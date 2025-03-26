@@ -7,6 +7,8 @@ export const usePlayerAreaActions = () => {
   const changeToPhase = useGameStateStore.use.changeToPhase()
   const handleComputerTurns = useGameStateStore.use.handleComputerTurns()
   const passTurn = useGameStateStore.use.passTurn()
+  const passBet = useGameStateStore.use.passBet()
+  const placeBet = useGameStateStore.use.placeBet()
 
-  return {phase, placeCard, playerTurn, changeToPhase, handleComputerTurns, passTurn}
+  return {phase, placeCard, playerTurn, changeToPhase, handleComputerTurns, passTurn, placeBet, passBet}
 }

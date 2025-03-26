@@ -1,19 +1,28 @@
 import { StateCreator } from 'zustand'
 import { GameState, PlayerSlice, Player } from '../types'
-import { getRandomCard, checkAllPlayers, stubPlayers, allPlayersReady, allPlayersPlacedOne } from './utils'
+import { getRandomCard, stubPlayers, allPlayersReady, allPlayersPlacedOne, getNewTurnOrder } from './utils'
 
 export const createPlayerSlice: StateCreator<GameState, [], [], PlayerSlice> = (set, get) => ({
   players: stubPlayers,
-
   addPlayer: (player: Player) => set((state) => ({ players: { ...state.players, [player.id]: player } })),
-
+  deactivatePlayer: (player) => {
+    set((state) => ({ 
+      players: { 
+        ...state.players, 
+        [player.id]: {
+          ...state.players[player.id],
+          isInactive: true,
+        }
+      }
+    }))
+  },
   resetPlayerReadyStatus: () => set((state) => ({
     players: Object.fromEntries((Object.entries(state.players).map(([id, player]) => 
       [id, { ...player, ready: false }])))
   })),
 
   // KEEP THIS FUNCTION PURE
-  placeCard: (playerId: number, card: 0 | 1) => {
+  placeCard: (playerId, card) => {
     set((state) => ({
       players: {
         ...state.players,
@@ -33,17 +42,53 @@ export const createPlayerSlice: StateCreator<GameState, [], [], PlayerSlice> = (
     }))
   },
 
+  // KEEP THIS FUNCTION PURE
+  placeBet: (playerId, bet) => {
+    set((state) => ({
+      players: {
+        ...state.players,
+        [playerId]: {
+          ...state.players[playerId],
+          currentBet: bet
+        }
+      }
+    }))
+
+    set({ currentHighBet: bet })
+  },
+
+  passBet: (playerId) => { 
+    set((state) => ({
+      players: {
+        ...state.players,
+        [playerId]: { 
+          ...state.players[playerId],
+          hasPassedBetting: true 
+        }
+      }
+    }))
+  },
+
+
+  // TODO - Split this function into smaller functions for each specific phase
   handleComputerTurns: () => {
-    const { players, phase, placeCard, playerTurn, passTurn, handleComputerTurns, startNextPhase } = get()
-    if (phase !== 'opening' && phase !== 'placing') return
-    
-    console.log({ allPlayersPlaced: checkAllPlayers(players, (player) => player.playedCards.length === 1)})
+    const { 
+      players, 
+      phase, 
+      placeCard, 
+      playerTurn, 
+      passTurn, 
+      handleComputerTurns, 
+      startNextPhase,
+      currentHighBet,
+      placeBet 
+    } = get()
 
     if (phase === 'opening') {
       if (!allPlayersPlacedOne(players)) {
         const computerPlayer = Object.values(players).find((player) => player.isComputer && !player.ready)
 
-        if (computerPlayer === undefined) return 
+        if (computerPlayer === undefined) return
         if (computerPlayer?.playedCards.length !== 1) {
           setTimeout(() => {
             const randCard = getRandomCard(computerPlayer)
@@ -55,7 +100,7 @@ export const createPlayerSlice: StateCreator<GameState, [], [], PlayerSlice> = (
       }
 
       if (allPlayersReady(players) && allPlayersPlacedOne(players)) {
-        startNextPhase()
+        return startNextPhase()
       }
     }
 
@@ -70,6 +115,20 @@ export const createPlayerSlice: StateCreator<GameState, [], [], PlayerSlice> = (
         passTurn()
         handleComputerTurns()
       }, Math.random() * 2600)
+    }
+
+    if (phase === 'betting' && playerTurn?.isComputer) {
+      const computerPlayer = playerTurn
+      const maxBet = Object.values(players).reduce((acc, player) => (player.playedCards.length + acc), 0)
+
+      if (currentHighBet === maxBet) return startNextPhase()
+
+      setTimeout(() => {
+        placeBet(computerPlayer.id, currentHighBet + 1)
+        passTurn()
+        handleComputerTurns()
+      }, Math.random() * 2000)
+      console.log({ maxBet })
     }
   }
 })
