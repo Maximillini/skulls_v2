@@ -13,7 +13,7 @@ export const createPlayerSlice: StateCreator<GameState, [], [], PlayerSlice> = (
   })),
 
   // KEEP THIS FUNCTION PURE
-  placeCard: (playerId: number, card: 0 | 1) => {
+  placeCard: (playerId, card) => {
     set((state) => ({
       players: {
         ...state.players,
@@ -32,12 +32,24 @@ export const createPlayerSlice: StateCreator<GameState, [], [], PlayerSlice> = (
       }
     }))
   },
+  
+  // KEEP THIS FUNCTION PURE
+  placeBet: (playerId, bet) => {
+    set((state) => ({
+      players: {
+        ...state.players,
+        [playerId]: {
+          ...state.players[playerId],
+          currentBet: bet
+        }
+      }
+    }))
+
+    set({ currentHighBet: bet })
+  },
 
   handleComputerTurns: () => {
     const { players, phase, placeCard, playerTurn, passTurn, handleComputerTurns, startNextPhase } = get()
-    if (phase !== 'opening' && phase !== 'placing') return
-    
-    console.log({ allPlayersPlaced: checkAllPlayers(players, (player) => player.playedCards.length === 1)})
 
     if (phase === 'opening') {
       if (!allPlayersPlacedOne(players)) {
