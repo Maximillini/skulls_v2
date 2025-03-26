@@ -16,9 +16,10 @@ export const createPlayerSlice: StateCreator<GameState, [], [], PlayerSlice> = (
       }
     }))
   },
-  resetPlayerReadyStatus: () => set((state) => ({
+
+  resetAllPlayersStatus: (prop, value) => set((state) => ({
     players: Object.fromEntries((Object.entries(state.players).map(([id, player]) => 
-      [id, { ...player, ready: false }])))
+    [id, {...player, [prop]: value}])))
   })),
 
   // KEEP THIS FUNCTION PURE

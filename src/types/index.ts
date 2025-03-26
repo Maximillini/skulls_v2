@@ -30,7 +30,7 @@ export type PlayerSlice = {
   players: Record<number, Player>,
   addPlayer: (player: Player) => void,
   deactivatePlayer: (player: Player) => void,
-  resetPlayerReadyStatus: () => void,
+  resetAllPlayersStatus: (prop: keyof Player, value: any) => void,
   placeCard: (playerId: number, card: 0 | 1) => void,
   placeBet: (playerId: number, bet: number) => void,
   passBet: (playerId: number) => void,

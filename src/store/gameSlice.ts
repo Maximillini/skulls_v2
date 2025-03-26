@@ -14,23 +14,23 @@ export const createGameSlice: StateCreator<GameState, [], [], GameSlice> = (set,
   startGame: () => set(() => ({ isGameRunning: true })),
   changeToPhase: (phase) => set({ phase }),
   startNextPhase: () => {
-    const { phase, changeToPhase, players, resetPlayerReadyStatus, playerTurn, handleComputerTurns } = get()
+    const { phase, changeToPhase, players, resetAllPlayersStatus, playerTurn, handleComputerTurns } = get()
 
     if (phase === 'opening' && allPlayersReady(players) && allPlayersPlacedOne(players)) {
       changeToPhase('placing')
-      resetPlayerReadyStatus()
+      resetAllPlayersStatus('ready', false)
       playerTurn.isComputer && handleComputerTurns()
     }
 
     if (phase === 'placing') {
       changeToPhase('betting')
-      resetPlayerReadyStatus()
+      resetAllPlayersStatus('ready', false)
       playerTurn.isComputer && handleComputerTurns()
     }
 
     if (phase === 'betting') {
       changeToPhase('flipping')
-      resetPlayerReadyStatus()
+      resetAllPlayersStatus('ready', false)
     }
   }
 })
