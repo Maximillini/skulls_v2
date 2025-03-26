@@ -1,5 +1,6 @@
 import { StoreApi, UseBoundStore } from 'zustand'
 import { Player, Players } from "../types"
+import { useGameStateStore } from '.'
 
 export const allPlayersReady = (players: Players) => 
   Object.values(players).every((player) => player.ready)
@@ -13,13 +14,13 @@ export const checkAllPlayers = (
 export const getRandomCard = (player: Player) => 
   player.hand[Math.floor(Math.random() * (player.hand.length - 1))]
 
-export const getRandomPlayer = (players: Record<number, Player>) => (
-  players[Math.floor(Math.random() * (Object.values(players).length - 1))]
-)
+export const getRandomPlayer = () => useGameStateStore.getState().players
 
-export const getActivePlayers = (players: Record<number, Player>) => (
-  Object.values(players).filter((player) => !player.isInactive)  
-)
+export const getActivePlayers = () => {
+  const players = useGameStateStore.getState().players
+  console.log(Object.values(players).filter((player) => !player.isInactive))
+  return Object.values(players).filter((player) => !player.isInactive)
+}
 
 export const getPlayerIndexById = (players: Record<number, Player>, playerId: number) => (
   Object.values(players).findIndex((player) => player.id === playerId)
