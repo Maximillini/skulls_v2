@@ -4,6 +4,7 @@ import { getRandomCard, stubPlayers, allPlayersReady, allPlayersPlacedOne } from
 
 export const createPlayerSlice: StateCreator<GameState, [], [], PlayerSlice> = (set, get) => ({
   players: stubPlayers,
+  currentChallenger: stubPlayers[1],
   addPlayer: (player: Player) => set((state) => ({ players: { ...state.players, [player.id]: player } })),
   deactivatePlayer: (player) => {
     set((state) => ({ 

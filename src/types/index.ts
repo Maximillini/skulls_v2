@@ -28,6 +28,7 @@ export type GameSlice = {
 
 export type PlayerSlice = {
   players: Record<number, Player>,
+  currentChallenger: Player,
   addPlayer: (player: Player) => void,
   deactivatePlayer: (player: Player) => void,
   resetAllPlayersStatus: (prop: keyof Player, value: any) => void,
