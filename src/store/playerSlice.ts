@@ -83,5 +83,11 @@ export const createPlayerSlice: StateCreator<GameState, [], [], PlayerSlice> = (
         handleComputerTurns()
       }, Math.random() * 2600)
     }
+
+    if (phase === 'betting' && playerTurn?.isComputer) {
+      const maxBet = Object.values(players).reduce((acc, player) => (player.playedCards.length + acc), 0)
+
+      console.log({ maxBet })
+    }
   }
 })
