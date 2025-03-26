@@ -8,6 +8,7 @@ export type Player = {
   // TODO - Think of more descriptive name than 'ready'
   ready: boolean,
   isComputer?: boolean,
+  isInactive: boolean,
   hasPassedBetting: boolean,
   currentBet: number,
 }
@@ -28,9 +29,11 @@ export type GameSlice = {
 export type PlayerSlice = {
   players: Record<number, Player>,
   addPlayer: (player: Player) => void,
+  deactivatePlayer: (player: Player) => void,
   resetPlayerReadyStatus: () => void,
   placeCard: (playerId: number, card: 0 | 1) => void,
-  placeBet: (playerId: number, bet: number) => void
+  placeBet: (playerId: number, bet: number) => void,
+  passBet: (playerId: number) => void,
   handleComputerTurns: () => void,
 }
 

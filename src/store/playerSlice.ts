@@ -1,12 +1,21 @@
 import { StateCreator } from 'zustand'
 import { GameState, PlayerSlice, Player } from '../types'
-import { getRandomCard, stubPlayers, allPlayersReady, allPlayersPlacedOne } from './utils'
+import { getRandomCard, stubPlayers, allPlayersReady, allPlayersPlacedOne, getNewTurnOrder } from './utils'
 
 export const createPlayerSlice: StateCreator<GameState, [], [], PlayerSlice> = (set, get) => ({
   players: stubPlayers,
-
   addPlayer: (player: Player) => set((state) => ({ players: { ...state.players, [player.id]: player } })),
-
+  deactivatePlayer: (player) => {
+    set((state) => ({ 
+      players: { 
+        ...state.players, 
+        [player.id]: {
+          ...state.players[player.id],
+          isInactive: true,
+        }
+      }
+    }))
+  },
   resetPlayerReadyStatus: () => set((state) => ({
     players: Object.fromEntries((Object.entries(state.players).map(([id, player]) => 
       [id, { ...player, ready: false }])))
@@ -32,7 +41,7 @@ export const createPlayerSlice: StateCreator<GameState, [], [], PlayerSlice> = (
       }
     }))
   },
-  
+
   // KEEP THIS FUNCTION PURE
   placeBet: (playerId, bet) => {
     set((state) => ({
