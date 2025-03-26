@@ -24,7 +24,7 @@ export const GameBoard = () => {
 
 const PlayerArea = ({ player }: { player: Player }) => {
   const renders = useRef(0)
-  const { phase, placeCard, passBet, playerTurn, handleComputerTurns, passTurn, changeToPhase } = usePlayerAreaActions()
+  const { phase, placeCard, deactivatePlayer, passBet, playerTurn, handleComputerTurns, passTurn, changeToPhase } = usePlayerAreaActions()
 
   const canSelectCard = () => (
     (phase === 'opening' && !player.ready) ||
@@ -33,6 +33,7 @@ const PlayerArea = ({ player }: { player: Player }) => {
 
   const handlePlaceCard = (card: 0 | 1) => {
     if (!canSelectCard()) return
+    
     if(phase === 'opening') {
       placeCard(1, card)
       handleComputerTurns()
@@ -47,6 +48,7 @@ const PlayerArea = ({ player }: { player: Player }) => {
 
   const handlePassBet = () => {
     passBet(1)
+    deactivatePlayer(player)
     passTurn()
     handleComputerTurns()
   }
