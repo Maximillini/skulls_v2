@@ -14,11 +14,15 @@ export const checkAllPlayers = (
 export const getRandomCard = (player: Player) => 
   player.hand[Math.floor(Math.random() * (player.hand.length - 1))]
 
-export const getRandomPlayer = () => useGameStateStore.getState().players
+export const getRandomPlayer = () => {
+  const players = useGameStateStore.getState().players
+
+  return Object.values(players)[Math.floor(Math.random() * (Object.values(players).length - 1))]
+}
 
 export const getActivePlayers = () => {
   const players = useGameStateStore.getState().players
-  console.log(Object.values(players).filter((player) => !player.isInactive))
+
   return Object.values(players).filter((player) => !player.isInactive)
 }
 
