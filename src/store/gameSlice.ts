@@ -9,12 +9,13 @@ export const createGameSlice: StateCreator<GameState, [], [], GameSlice> = (set,
   phases: PHASES,
   phaseIdx: 0,
   phase: PHASES[0] as Phase,
+  currentHighBet: 0,
 
   startGame: () => set(() => ({ isGameRunning: true })),
   changeToPhase: (phase) => set({ phase }),
   startNextPhase: () => {
     const { phase, changeToPhase, players, resetPlayerReadyStatus, playerTurn, handleComputerTurns } = get()
-    
+
     if (phase === 'opening' && allPlayersReady(players) && allPlayersPlacedOne(players)) {
       changeToPhase('placing')
       resetPlayerReadyStatus()

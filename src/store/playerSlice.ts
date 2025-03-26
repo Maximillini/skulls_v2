@@ -1,6 +1,6 @@
 import { StateCreator } from 'zustand'
 import { GameState, PlayerSlice, Player } from '../types'
-import { getRandomCard, checkAllPlayers, stubPlayers, allPlayersReady, allPlayersPlacedOne } from './utils'
+import { getRandomCard, stubPlayers, allPlayersReady, allPlayersPlacedOne } from './utils'
 
 export const createPlayerSlice: StateCreator<GameState, [], [], PlayerSlice> = (set, get) => ({
   players: stubPlayers,

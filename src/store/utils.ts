@@ -41,7 +41,8 @@ const fakePlayer: Player = {
   discarded: [],
   challengesWon: 0,
   ready: false,
-  hasPassedBetting: false
+  hasPassedBetting: false,
+  currentBet: 0,
 }
 
 export const stubPlayers = {
