@@ -92,9 +92,7 @@ export const createPlayerSlice: StateCreator<GameState, [['zustand/devtools', ne
         if (computerPlayer === undefined) return
         if (computerPlayer?.playedCards.length !== 1) {
           setTimeout(() => {
-            const randCard = getRandomCard(computerPlayer)
-  
-            placeCard(computerPlayer?.id || 2, randCard)
+            placeCard(computerPlayer?.id || 2, getRandomCard(computerPlayer))
             handleComputerTurns()
           }, Math.random() * 1200)
         }

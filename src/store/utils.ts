@@ -12,7 +12,7 @@ export const checkAllPlayers = (
 ) => (Object.values(players).every(fn))
 
 export const getRandomCard = (player: Player) => 
-  player.hand[Math.floor(Math.random() * (player.hand.length - 1))]
+  player.hand[Math.floor(Math.random() * (player.hand.length))]
 
 export const getRandomPlayer = () => {
   const players = useGameStateStore.getState().players
