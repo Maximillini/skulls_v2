@@ -14,7 +14,12 @@ export const GameBoard = () => {
   return (
     <div className="game-board">
       <div>GameBoard renders: {renders.current}</div>
-      <div className="table"></div>
+      <div className="table">
+        <PlayerMat player={players[1]} />
+        <PlayerMat player={players[2]} />
+        <PlayerMat player={players[3]} />
+        <PlayerMat player={players[4]} />
+      </div>
       <PlayerArea player={players[1]} />
       <PlayerArea player={players[2]} />
       <PlayerArea player={players[3]} />
