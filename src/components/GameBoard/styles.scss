@@ -101,29 +101,24 @@ $player-mat-color: #405abbfa;
     .hand {
       display: flex;
       .card {
-        background: purple;
-        border-radius: 100%;
-        border: 4px solid white;
-        outline: #222 1px solid;
-        margin: 4px;
+        @include base-card;
+        &.face-down {
+          background: $card-back;
+        }
       }  
     }
 
     &.current {
-      border: 1px solid red
+      border: 14px solid red;
     }
 
     &.player-1 {
       grid-area: player1;
-      .card {
-        background-color: #222;
+      .hand .card.face-up {
+        @include face-up-card;
       }
       &.idle .card {
-        cursor: pointer;
-        position: relative;
-        &:hover {
-          top: -8px;
-        }
+        @include selectable-card;
       }
       button:disabled {
         cursor: default;
