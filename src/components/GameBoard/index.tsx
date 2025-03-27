@@ -23,9 +23,31 @@ export const GameBoard = () => {
   )
 }
 
+type CardProps = {
+  card: 1 | 0,
+  idx: number,
+  player: Player,
+  handleClick: () => void
+}
+
+const Card = ({ card, idx, player, handleClick }: CardProps) => (
+  player.id === 1 ? 
+    <span className="card face-up" onClick={handleClick} key={`${player.name}${idx}`}>{card === 1 ? '🌸' : '💀'}</span> :
+    <span className="card face-down" key={`${player.name}${idx}`}></span>
+)
+
+const PlayerMat = ({ player, isFlippable }: { player: Player, isFlippable: boolean }) => (
+  <div className={`player-mat-area player-${player.id}-mat`}>
+    <div className="player-mat">
+      {player.playedCards.map(() => (
+        <div className={`card played-card ${isFlippable ? 'flippable': ''}`}></div>
+      ))}
+    </div>
+  </div>
+)
+
 const PlayerArea = ({ player }: { player: Player }) => {
-  const [isUserBetting, setIsUserBetting] = useState(false)
-  const renders = useRef(0)
+  // const renders = useRef(0)
   const currentHighBet = useGameStateStore.use.currentHighBet()
   const { phase, placeCard, deactivatePlayer, passBet, playerTurn, handleComputerTurns, passTurn, changeToPhase } = usePlayerAreaActions()
 
@@ -56,19 +78,6 @@ const PlayerArea = ({ player }: { player: Player }) => {
     handleComputerTurns()
   }
 
-  /**
-   * Function to determine if cards should be displayed or hidden, depending on the player
-   * 
-   * @param card 0 or 1 with 1 representing flowers and 0 representing a skull, used only for user player
-   * @param idx index of the card in player's hand, used to create a more unique key
-   * @returns <span> tag that either shows the card face with value or card back without value
-   */
-  const cardOrientation = (card: 0 | 1, idx: number) => (
-    player.id === 1 ? 
-    <span className="card face-up" onClick={() => handlePlaceCard(card)} key={`${player.name}${idx}`}>{card === 1 ? '🌸' : '💀'}</span> :
-    <span className="card face-down" key={`${player.name}${idx}`}></span>
-  )
-
   const userActionButtons = () => (
     <>
       {phase === 'placing' && player.id === 1 && <button onClick={() => changeToPhase('betting')} disabled={playerTurn.id !== 1}>Place Bet</button>}
@@ -76,11 +85,11 @@ const PlayerArea = ({ player }: { player: Player }) => {
     </>
   )
 
-  renders.current = renders.current + 1
+  // renders.current = renders.current + 1
 
   return (
     <div className={`player player-${player.id} ${canSelectCard() ? 'idle' : 'ready'} ${playerTurn.id === player.id ? 'current' : ''}`}>
-      <div>renders: {renders.current}</div>
+      {/* <div>renders: {renders.current}</div> */}
       <div className="player-name-area">
         {player.name}
         <br />
@@ -95,10 +104,16 @@ const PlayerArea = ({ player }: { player: Player }) => {
         />}
       </div>
       <div className="hand">
-        {player.hand.map(cardOrientation)}
+        {player.hand.map((card, i) => (
+          <Card 
+            player={player}
+            card={card}
+            idx={i}
+            handleClick={() => handlePlaceCard(card)}
+          />
+        ))}
       </div>
       <div className="discard">{player.discarded.map(() => <div className="discarded-card"></div>)}</div>
-      <div className="play-mat card">{player.playedCards}</div>
     </div>
   )
 }
@@ -110,7 +125,7 @@ type UserBetMenuProps = {
   currentHighBet: number
 }
 
-const UserBetMenu = ({ phase, player, playerTurn, currentHighBet }: UserBetMenuProps) => {
+const UserBetMenu = ({ phase, playerTurn, currentHighBet }: UserBetMenuProps) => {
   const [bet, setBet] = useState(currentHighBet + 1)
   const { placeBet, passTurn, changeToPhase, handleComputerTurns } = usePlayerAreaActions()
   useEffect(() => {
@@ -129,8 +144,10 @@ const UserBetMenu = ({ phase, player, playerTurn, currentHighBet }: UserBetMenuP
     if (bet < getMaximumBet()) {
       passTurn()
       handleComputerTurns()
+      return
     }
-    if (bet === getMaximumBet()) changeToPhase('flipping')
+
+    changeToPhase('flipping')
   }
 
   return (
