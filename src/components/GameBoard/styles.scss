@@ -1,3 +1,35 @@
+$card-back: purple;
+$player-mat-color: #405abbfa;
+
+@mixin base-card {
+  border-radius: 100%;
+  border: 4px solid white;
+  outline: #222 1px solid;
+  margin: 4px;
+  user-select: none;
+}
+
+@mixin face-down-card {
+  background-color: $card-back;
+  @include base-card;
+}
+
+@mixin face-up-card {
+  @include base-card;
+  background-color: #222;
+}
+
+@mixin selectable-card {
+  cursor: pointer;
+  position: relative;
+  transition: all 0.4s ease;
+  top: 0;
+  &:hover {
+    top: -8px;
+    box-shadow: rgba(10, 10, 10, 0.5) 0 14px 4px;
+  }
+}
+
 .game-board {
   background: beige;
   color: #222;
