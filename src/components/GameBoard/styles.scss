@@ -34,7 +34,7 @@ $player-mat-color: #405abbfa;
   background: beige;
   color: #222;
   display: grid;
-  height: 90vh;
+  height: 84vh;
   grid-template-areas: ". player3 ."
                        "player2 table player4"
                        ". player1 .";
@@ -44,11 +44,52 @@ $player-mat-color: #405abbfa;
 
   .table {
     background-color: green;
+    display: grid;
     grid-area: table;
-  }
-
-  .card {
-    user-select: none;
+    grid-template-areas: ". player3-mat ."
+                         "player2-mat none player4-mat"
+                         ". player1-mat .";
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+    
+    .player-mat-area {
+      place-content: center;
+      place-items: center;
+      .player-mat {
+        background: $player-mat-color;
+        border: 2px solid #222;
+        border-radius: 10px;
+        height: 120px;
+        position: relative;
+        width: 120px;
+        .card.played-card {
+          @include face-down-card;
+          position: absolute;
+          @for $i from 1 through 4 {
+            &:nth-child(#{$i}) {
+              bottom: calc(#{$i} * 6px);
+              left: calc(#{$i} * 6px);
+              z-index: calc(#{$i} * 10);
+            }
+          }
+          .flippable {
+            @include selectable-card;
+          }
+        }
+      }
+      &.player-1-mat {
+        grid-area: player1-mat;
+      }
+      &.player-2-mat {
+        grid-area: player2-mat;
+      }
+      &.player-3-mat {
+        grid-area: player3-mat;
+      }
+      &.player-4-mat {
+        grid-area: player4-mat;
+      }
+    }
   }
 
   .player {
