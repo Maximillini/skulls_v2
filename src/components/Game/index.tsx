@@ -18,7 +18,7 @@ export const Game = () => {
       <br />
       {phase !== 'opening' && `Current Turn: ${playerTurn.name}`}
       <br />
-      {phase === 'betting' && `Current Bet: ${currentHighBet}`}
+      {phase === 'betting' && `Current Bet: ${currentHighBet} Cards on the table: ${getMaximumBet()}`}
       <br />
       Phase: {`${phase.toUpperCase()}`}
       <GameBoard />
