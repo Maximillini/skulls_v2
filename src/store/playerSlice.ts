@@ -2,10 +2,10 @@ import { StateCreator } from 'zustand'
 import { GameState, PlayerSlice, Player } from '../types'
 import { getRandomCard, stubPlayers, allPlayersReady, allPlayersPlacedOne } from './utils'
 
-export const createPlayerSlice: StateCreator<GameState, [], [], PlayerSlice> = (set, get) => ({
+export const createPlayerSlice: StateCreator<GameState, [['zustand/devtools', never]], [], PlayerSlice> = (set, get) => ({
   players: stubPlayers,
   currentChallenger: stubPlayers[1],
-  addPlayer: (player: Player) => set((state) => ({ players: { ...state.players, [player.id]: player } })),
+  addPlayer: (player: Player) => set((state) => ({ players: { ...state.players, [player.id]: player } }), undefined, 'player/addPlayer'),
   deactivatePlayer: (player) => {
     set((state) => ({ 
       players: { 
@@ -15,13 +15,13 @@ export const createPlayerSlice: StateCreator<GameState, [], [], PlayerSlice> = (
           isInactive: true,
         }
       }
-    }))
+    }), undefined, 'player/deactivatePlayer')
   },
 
   resetAllPlayersStatus: (prop, value) => set((state) => ({
     players: Object.fromEntries((Object.entries(state.players).map(([id, player]) => 
     [id, {...player, [prop]: value}])))
-  })),
+  }), undefined, 'player/resetAllPlayersStatus'),
 
   // KEEP THIS FUNCTION PURE
   placeCard: (playerId, card) => {
@@ -41,12 +41,14 @@ export const createPlayerSlice: StateCreator<GameState, [], [], PlayerSlice> = (
           ready: true,
         }
       }
-    }))
+    }), undefined, 'player/placeCard')
   },
 
   // KEEP THIS FUNCTION PURE
   placeBet: (playerId, bet) => {
     set((state) => ({
+      ...state,
+      currentHighBet: bet,
       players: {
         ...state.players,
         [playerId]: {
@@ -54,9 +56,7 @@ export const createPlayerSlice: StateCreator<GameState, [], [], PlayerSlice> = (
           currentBet: bet
         }
       }
-    }))
-
-    set({ currentHighBet: bet })
+    }), undefined, 'player/placeBet')
   },
 
   passBet: (playerId) => { 
@@ -68,7 +68,7 @@ export const createPlayerSlice: StateCreator<GameState, [], [], PlayerSlice> = (
           hasPassedBetting: true 
         }
       }
-    }))
+    }), undefined, 'player/passBet')
   },
 
   // TODO - Split this function into smaller functions for each specific phase
