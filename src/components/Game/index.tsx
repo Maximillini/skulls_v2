@@ -1,4 +1,5 @@
 import { useGameStateStore } from '../../store'
+import { getMaximumBet } from '../../store/utils'
 import { GameBoard } from '../GameBoard'
 
 export const Game = () => {
