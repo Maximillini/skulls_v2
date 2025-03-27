@@ -12,12 +12,12 @@ export const checkAllPlayers = (
 ) => (Object.values(players).every(fn))
 
 export const getRandomCard = (player: Player) => 
-  player.hand[Math.floor(Math.random() * (player.hand.length - 1))]
+  player.hand[Math.floor(Math.random() * (player.hand.length))]
 
 export const getRandomPlayer = () => {
   const players = useGameStateStore.getState().players
 
-  return Object.values(players)[Math.floor(Math.random() * (Object.values(players).length - 1))]
+  return Object.values(players)[Math.floor(Math.random() * (Object.values(players).length))]
 }
 
 export const getActivePlayers = () => {
@@ -30,10 +30,21 @@ export const getPlayerIndexById = (players: Record<number, Player>, playerId: nu
   Object.values(players).findIndex((player) => player.id === playerId)
 )
 
+export const getMaximumBet = () => {
+  const players = useGameStateStore.getState().players
+
+  return Object.values(players).reduce((acc, player) => (player.playedCards.length + acc), 0)
+}
+
 type WithSelectors<S> = S extends { getState: () => infer T }
   ? S & { use: { [K in keyof T]: () => T[K] } }
   : never
 
+/**
+ * 
+ * @param _store A Zustand store
+ * @returns store object with 'use' property bound to each state and action on the provided Zustand store
+ */
 export const createSelectors = <S extends UseBoundStore<StoreApi<object>>>(
   _store: S,
 ) => {

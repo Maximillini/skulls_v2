@@ -1,7 +1,8 @@
-import { useRef } from 'react'
-import { Player } from '../../types'
+import { useState, useRef, useEffect } from 'react'
+import { Player, Phase } from '../../types'
 import { useGameStateStore } from '../../store'
 import { usePlayerAreaActions } from '../../hooks/usePlayerAreaActions'
+import { getMaximumBet } from '../../store/utils'
 import './styles.scss'
 
 export const GameBoard = () => {
@@ -23,7 +24,9 @@ export const GameBoard = () => {
 }
 
 const PlayerArea = ({ player }: { player: Player }) => {
+  const [isUserBetting, setIsUserBetting] = useState(false)
   const renders = useRef(0)
+  const currentHighBet = useGameStateStore.use.currentHighBet()
   const { phase, placeCard, deactivatePlayer, passBet, playerTurn, handleComputerTurns, passTurn, changeToPhase } = usePlayerAreaActions()
 
   const canSelectCard = () => (
@@ -33,7 +36,7 @@ const PlayerArea = ({ player }: { player: Player }) => {
 
   const handlePlaceCard = (card: 0 | 1) => {
     if (!canSelectCard()) return
-    
+
     if(phase === 'opening') {
       placeCard(1, card)
       handleComputerTurns()
@@ -84,6 +87,12 @@ const PlayerArea = ({ player }: { player: Player }) => {
         {player.ready ? "Ready" : "Idle"}
         <br />
         {userActionButtons()}
+        {player.id === 1 && <UserBetMenu
+          phase={phase}
+          player={player}
+          playerTurn={playerTurn}
+          currentHighBet={currentHighBet}
+        />}
       </div>
       <div className="hand">
         {player.hand.map(cardOrientation)}
@@ -91,5 +100,49 @@ const PlayerArea = ({ player }: { player: Player }) => {
       <div className="discard">{player.discarded.map(() => <div className="discarded-card"></div>)}</div>
       <div className="play-mat card">{player.playedCards}</div>
     </div>
+  )
+}
+
+type UserBetMenuProps = {
+  phase: Phase,
+  player: Player,
+  playerTurn: Player,
+  currentHighBet: number
+}
+
+const UserBetMenu = ({ phase, player, playerTurn, currentHighBet }: UserBetMenuProps) => {
+  const [bet, setBet] = useState(currentHighBet + 1)
+  const { placeBet, passTurn, changeToPhase, handleComputerTurns } = usePlayerAreaActions()
+  useEffect(() => {
+    setBet(currentHighBet + 1)
+  }, [currentHighBet])
+
+  const handleAdjustBet = (operator: '+' | '-') => {
+    if (operator === '+') return setBet((prev) => prev + 1)
+    
+    if (operator === '-') return setBet((prev) => prev - 1)
+  }
+
+  const handlePlaceBet = () => {
+    placeBet(1, bet)
+
+    if (bet < getMaximumBet()) {
+      passTurn()
+      handleComputerTurns()
+    }
+    if (bet === getMaximumBet()) changeToPhase('flipping')
+  }
+
+  return (
+    <>
+      {phase === 'betting' && playerTurn.id === 1 && (
+        <div className="user-bet-menu">
+          Bet: {bet}
+          <input type="button" value="-" onClick={() => handleAdjustBet('-')} disabled={bet === currentHighBet + 1} />
+          <input type="button" value="+" onClick={() => handleAdjustBet('+')} disabled={bet === getMaximumBet()} />
+          <input type="button" value="Bet" onClick={handlePlaceBet} />
+        </div>
+      )}  
+    </>
   )
 }
