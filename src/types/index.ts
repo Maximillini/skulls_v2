@@ -2,8 +2,8 @@ export type Player = {
   id: number,
   name: string,
   hand: (0 | 1)[],
-  playedCards: number[]
-  discarded: number[],
+  playedCards: (0 | 1)[]
+  discarded: (0 | 1)[],
   challengesWon: 0 | 1 | 2,
   // TODO - Think of more descriptive name than 'ready'
   ready: boolean,
@@ -21,6 +21,7 @@ export type GameSlice = {
   phaseIdx: number,
   phase: Phase,
   currentHighBet: number,
+  flippedCards: number,
   startGame: () => void,
   changeToPhase: (phase: Phase) => void,
   startNextPhase: () => void,
