@@ -4,7 +4,7 @@ import { Phase, GameSlice, GameState } from '../types'
 
 const PHASES: Phase[] = ['opening', 'placing', 'betting', 'flipping', 'discarding']
 
-export const createGameSlice: StateCreator<GameState, [], [], GameSlice> = (set, get) => ({
+export const createGameSlice: StateCreator<GameState, [['zustand/devtools', never]], [], GameSlice> = (set, get) => ({
   isGameRunning: false,
   phases: PHASES,
   phaseIdx: 0,
@@ -12,7 +12,7 @@ export const createGameSlice: StateCreator<GameState, [], [], GameSlice> = (set,
   currentHighBet: 0,
 
   startGame: () => set(() => ({ isGameRunning: true })),
-  changeToPhase: (phase) => set({ phase }),
+  changeToPhase: (phase) => set({ phase }, undefined, 'game/changeToPhase'),
   startNextPhase: () => {
     const { phase, changeToPhase, players, resetAllPlayersStatus, playerTurn, handleComputerTurns } = get()
 
