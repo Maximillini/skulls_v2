@@ -17,7 +17,7 @@ export const getRandomCard = (player: Player) =>
 export const getRandomPlayer = () => {
   const players = useGameStateStore.getState().players
 
-  return Object.values(players)[Math.floor(Math.random() * (Object.values(players).length - 1))]
+  return Object.values(players)[Math.floor(Math.random() * (Object.values(players).length))]
 }
 
 export const getActivePlayers = () => {
