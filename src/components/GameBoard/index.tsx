@@ -2,24 +2,29 @@ import { useState, useRef, useEffect } from 'react'
 import { Player, Phase } from '../../types'
 import { useGameStateStore } from '../../store'
 import { usePlayerAreaActions } from '../../hooks/usePlayerAreaActions'
-import { getMaximumBet } from '../../store/utils'
+import { cardValue, getMaximumBet } from '../../store/utils'
 import './styles.scss'
 
 export const GameBoard = () => {
   const renders = useRef(0)
   const players = useGameStateStore.use.players()
-
+  const flippedCards = useGameStateStore.use.flippedCards()
   renders.current = renders.current + 1
 
   return (
     <div className="game-board">
       <div>GameBoard renders: {renders.current}</div>
       <div className="table">
+        <div className="player-flip-area">
+          {flippedCards.map((fc) => (
+            <span className="card face-up">{cardValue(fc)}</span>
+          ))}
+        </div>
         <PlayerMat player={players[1]} />
         <PlayerMat player={players[2]} />
         <PlayerMat player={players[3]} />
         <PlayerMat player={players[4]} />
-      </div>
+        </div>
       <PlayerArea player={players[1]} />
       <PlayerArea player={players[2]} />
       <PlayerArea player={players[3]} />
@@ -37,23 +42,59 @@ type CardProps = {
 
 const Card = ({ card, idx, player, handleClick }: CardProps) => (
   player.id === 1 ? 
-    <span className="card face-up" onClick={handleClick} key={`${player.name}${idx}`}>{card === 1 ? '🌸' : '💀'}</span> :
+    <span className="card face-up" onClick={handleClick} key={`${player.name}${idx}`}>{cardValue(card)}</span> :
     <span className="card face-down" key={`${player.name}${idx}`}></span>
 )
 
-const PlayerMat = ({ player, isFlippable }: { player: Player, isFlippable: boolean }) => (
+const CardStack = ({ cards, player }: { cards: (0 | 1)[], player: Player }) => {
+  const playerTurn = useGameStateStore.use.playerTurn()
+  const players = useGameStateStore.use.players()
+  const phase = useGameStateStore.use.phase()
+  const flipCard = useGameStateStore.use.flipCard()
+  const changeToPhase = useGameStateStore.use.changeToPhase()
+  const isPlayersOwnMat = player.id === playerTurn.id
+
+  const isFlippable = (idx: number) => {
+    const isTopCard = idx === (cards.length - 1)
+    const isFlippingPhase = phase === 'flipping'
+    
+    return isTopCard && isFlippingPhase && (isPlayersOwnMat || players[playerTurn.id].flippedOwnCards)
+  }
+
+  const handleFlipCard = (idx: number) => {
+    if (!isFlippable(idx)) return
+    
+    if (cards[idx] === 0) {
+      debugger
+      return changeToPhase('discarding')
+    }
+
+    console.log(cards[idx])
+    flipCard(playerTurn.id, cards[idx], player.id)
+  }
+
+  return (
+    <>
+      {cards.map((_, idx) => (
+        <div className={`card played-card ${isFlippable(idx) ? 'flippable': ''}`} onClick={() => handleFlipCard(idx)}></div>
+      ))}
+    </>
+  )
+}
+
+const PlayerMat = ({ player }: { player: Player }) => (
   <div className={`player-mat-area player-${player.id}-mat`}>
     <div className="player-mat">
-      {player.playedCards.map(() => (
-        <div className={`card played-card ${isFlippable ? 'flippable': ''}`}></div>
-      ))}
+      <CardStack cards={player.playedCards} player={player} />
     </div>
   </div>
 )
 
+
 const PlayerArea = ({ player }: { player: Player }) => {
   // const renders = useRef(0)
   const currentHighBet = useGameStateStore.use.currentHighBet()
+  const flippedOwnCards = player.flippedOwnCards
   const { phase, placeCard, deactivatePlayer, passBet, playerTurn, handleComputerTurns, passTurn, changeToPhase } = usePlayerAreaActions()
 
   const canSelectCard = () => (
@@ -95,6 +136,7 @@ const PlayerArea = ({ player }: { player: Player }) => {
   return (
     <div className={`player player-${player.id} ${canSelectCard() ? 'idle' : 'ready'} ${playerTurn.id === player.id ? 'current' : ''}`}>
       {/* <div>renders: {renders.current}</div> */}
+      { phase === 'flipping' && <span>{`${flippedOwnCards}`}</span>}
       <div className="player-name-area">
         {player.name}
         <br />

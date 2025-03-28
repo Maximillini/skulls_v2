@@ -10,7 +10,7 @@ export const createGameSlice: StateCreator<GameState, [['zustand/devtools', neve
   phaseIdx: 0,
   phase: PHASES[0] as Phase,
   currentHighBet: 0,
-  flippedCards: 0,
+  flippedCards: [],
 
   startGame: () => set(() => ({ isGameRunning: true })),
   changeToPhase: (phase) => set({ phase }, undefined, 'game/changeToPhase'),

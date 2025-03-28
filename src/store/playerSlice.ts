@@ -4,7 +4,6 @@ import { getRandomCard, stubPlayers, allPlayersReady, allPlayersPlacedOne } from
 
 export const createPlayerSlice: StateCreator<GameState, [['zustand/devtools', never]], [], PlayerSlice> = (set, get) => ({
   players: stubPlayers,
-  currentChallenger: stubPlayers[1],
   addPlayer: (player: Player) => set((state) => ({ players: { ...state.players, [player.id]: player } }), undefined, 'player/addPlayer'),
   deactivatePlayer: (player) => {
     set((state) => ({ 
@@ -59,7 +58,7 @@ export const createPlayerSlice: StateCreator<GameState, [['zustand/devtools', ne
     }), undefined, 'player/placeBet')
   },
 
-  passBet: (playerId) => { 
+  passBet: (playerId) => {
     set((state) => ({
       players: {
         ...state.players,
@@ -69,6 +68,21 @@ export const createPlayerSlice: StateCreator<GameState, [['zustand/devtools', ne
         }
       }
     }), undefined, 'player/passBet')
+  },
+
+  flipCard: (playerId, card, playerMatId) => {
+    set((state) => ({
+      ...state,
+      flippedCards: [...state.flippedCards, card],
+      players: {
+        ...state.players,
+        [playerMatId]: {
+          ...state.players[playerMatId],
+          playedCards: (() => state.players[playerMatId].playedCards.slice(0, -1))(),
+          flippedOwnCards: (() => (playerId === playerMatId && state.players[playerId].playedCards.length === 1))()
+        },
+      }
+    }), undefined, 'player/flipCard')
   },
 
   // TODO - Split this function into smaller functions for each specific phase

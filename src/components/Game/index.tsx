@@ -16,6 +16,7 @@ export const Game = () => {
     <>
       {phase !== 'opening' && `Current Turn: ${playerTurn.name}`}
       <br />
+      {phase === 'flipping' && `Flips Remaining: ${currentHighBet - useGameStateStore.getState().flippedCards.length}`}
       {phase === 'betting' && `Current Bet: ${currentHighBet} Cards on the table: ${getMaximumBet()}`}
       <br />
       Phase: {`${phase.toUpperCase()}`}

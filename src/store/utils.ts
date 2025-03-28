@@ -36,6 +36,8 @@ export const getMaximumBet = () => {
   return Object.values(players).reduce((acc, player) => (player.playedCards.length + acc), 0)
 }
 
+export const cardValue = (card: number) => card === 1 ? '🌸' : '💀'
+
 type WithSelectors<S> = S extends { getState: () => infer T }
   ? S & { use: { [K in keyof T]: () => T[K] } }
   : never
@@ -62,6 +64,7 @@ const fakePlayer: Player = {
   name: 'Player-1',
   hand: [1, 1, 1, 0],
   playedCards: [],
+  flippedOwnCards: false,
   discarded: [],
   challengesWon: 0,
   ready: false,

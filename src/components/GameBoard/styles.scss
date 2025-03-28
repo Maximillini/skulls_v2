@@ -6,24 +6,28 @@ $player-mat-color: #405abbfa;
   border: 4px solid white;
   outline: #222 1px solid;
   margin: 4px;
+  padding: 1.8em;
   user-select: none;
 }
 
 @mixin face-down-card {
-  background-color: $card-back;
   @include base-card;
+  background-color: $card-back;
+  padding: 2.6em;
 }
 
 @mixin face-up-card {
   @include base-card;
   background-color: #222;
+  font-size: 2em;
+  padding: 1em;
 }
 
-@mixin selectable-card {
+@mixin selectable-card($top) {
   cursor: pointer;
   position: relative;
   transition: all 0.4s ease;
-  top: 0;
+  top: $top;
   &:hover {
     top: -8px;
     box-shadow: rgba(10, 10, 10, 0.5) 0 14px 4px;
@@ -41,14 +45,17 @@ $player-mat-color: #405abbfa;
   grid-template-columns: 1fr 3fr 1fr;
   grid-template-rows: 1fr 3fr 1fr;
   width: 60vw;
+  .card.face-up {
+    @include face-up-card;
+  }
 
   .table {
     background-color: green;
     display: grid;
     grid-area: table;
-    grid-template-areas: ". player3-mat ."
-                         "player2-mat none player4-mat"
-                         ". player1-mat .";
+    grid-template-areas: ". player3-mat player3-flip"
+                         "player2-mat player-flip player4-mat"
+                         "player2-flip player1-mat player1-flip";
     grid-template-columns: 1fr 1fr 1fr;
     grid-template-rows: 1fr 1fr 1fr;
     
@@ -65,15 +72,16 @@ $player-mat-color: #405abbfa;
         .card.played-card {
           @include face-down-card;
           position: absolute;
+          width: 0;
           @for $i from 1 through 4 {
             &:nth-child(#{$i}) {
-              bottom: calc(#{$i} * 6px);
+              top: calc(#{$i} * 6px);
               left: calc(#{$i} * 6px);
               z-index: calc(#{$i} * 10);
+              &.flippable {
+                @include selectable-card(calc(#{$i} * 6px));
+              }
             }
-          }
-          .flippable {
-            @include selectable-card;
           }
         }
       }
@@ -90,16 +98,20 @@ $player-mat-color: #405abbfa;
         grid-area: player4-mat;
       }
     }
+    .player-flip-area {
+      grid-area: player-flip;
+      place-content: center;
+    }
   }
 
   .player {
-    border: 1px solid #222;
+    align-items: center;
     display: flex;
     justify-content: space-evenly;
-    align-items: center;
     position: relative;
     .hand {
       display: flex;
+      flex: 0 0 50%;
       .card {
         @include base-card;
         &.face-down {
@@ -118,7 +130,7 @@ $player-mat-color: #405abbfa;
         @include face-up-card;
       }
       &.idle .card {
-        @include selectable-card;
+        @include selectable-card(0);
       }
       button:disabled {
         cursor: default;
