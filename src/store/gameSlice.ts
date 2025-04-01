@@ -1,5 +1,5 @@
 import { StateCreator } from 'zustand';
-import { allPlayersPlacedOne, allPlayersReady } from './utils';
+import { allPlayersPlacedOne, allPlayersReady, stubPlayers } from './utils';
 import { Phase, GameSlice, GameState } from '../types'
 
 const PHASES: Phase[] = ['opening', 'placing', 'betting', 'flipping', 'discarding']
@@ -10,27 +10,36 @@ export const createGameSlice: StateCreator<GameState, [['zustand/devtools', neve
   phaseIdx: 0,
   phase: PHASES[0] as Phase,
   currentHighBet: 0,
+  flippedCards: [],
 
   startGame: () => set(() => ({ isGameRunning: true })),
   changeToPhase: (phase) => set({ phase }, undefined, 'game/changeToPhase'),
-  startNextPhase: () => {
+  startNextPhase: (options?: { playerHitSkull: boolean }) => {
     const { phase, changeToPhase, players, resetAllPlayersStatus, playerTurn, handleComputerTurns } = get()
 
     if (phase === 'opening' && allPlayersReady(players) && allPlayersPlacedOne(players)) {
       changeToPhase('placing')
-      resetAllPlayersStatus('ready', false)
-      playerTurn.isComputer && handleComputerTurns()
     }
 
     if (phase === 'placing') {
       changeToPhase('betting')
-      resetAllPlayersStatus('ready', false)
-      playerTurn.isComputer && handleComputerTurns()
     }
 
     if (phase === 'betting') {
       changeToPhase('flipping')
-      resetAllPlayersStatus('ready', false)
     }
+
+    if (phase === 'flipping') {
+      if (options?.playerHitSkull) {
+        resetAllPlayersStatus('hand', stubPlayers[1].hand)
+        resetAllPlayersStatus('playedCards', [])
+        changeToPhase('discarding')
+      } else {
+        changeToPhase('opening')
+      }
+    }
+
+    resetAllPlayersStatus('ready', false)
+    playerTurn.isComputer && handleComputerTurns()
   }
 })

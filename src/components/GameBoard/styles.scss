@@ -1,54 +1,136 @@
+$card-back: purple;
+$player-mat-color: #405abbfa;
+
+@mixin base-card {
+  border-radius: 100%;
+  border: 4px solid white;
+  outline: #222 1px solid;
+  margin: 4px;
+  padding: 1.8em;
+  user-select: none;
+}
+
+@mixin face-down-card {
+  @include base-card;
+  background-color: $card-back;
+  padding: 2.6em;
+}
+
+@mixin face-up-card {
+  @include base-card;
+  background-color: #222;
+  font-size: 2em;
+  padding: 1em;
+}
+
+@mixin selectable-card($top) {
+  cursor: pointer;
+  position: relative;
+  transition: all 0.4s ease;
+  top: $top;
+  &:hover {
+    top: -8px;
+    box-shadow: rgba(10, 10, 10, 0.5) 0 14px 4px;
+  }
+}
+
 .game-board {
   background: beige;
   color: #222;
   display: grid;
-  height: 90vh;
+  height: 84vh;
   grid-template-areas: ". player3 ."
                        "player2 table player4"
                        ". player1 .";
   grid-template-columns: 1fr 3fr 1fr;
   grid-template-rows: 1fr 3fr 1fr;
   width: 60vw;
+  .card.face-up {
+    @include face-up-card;
+  }
 
   .table {
     background-color: green;
+    display: grid;
     grid-area: table;
-  }
-
-  .card {
-    user-select: none;
+    grid-template-areas: ". player3-mat player3-flip"
+                         "player2-mat player-flip player4-mat"
+                         "player2-flip player1-mat player1-flip";
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+    
+    .player-mat-area {
+      place-content: center;
+      place-items: center;
+      .player-mat {
+        background: $player-mat-color;
+        border: 2px solid #222;
+        border-radius: 10px;
+        height: 120px;
+        position: relative;
+        width: 120px;
+        .card.played-card {
+          @include face-down-card;
+          position: absolute;
+          width: 0;
+          @for $i from 1 through 4 {
+            &:nth-child(#{$i}) {
+              top: calc(#{$i} * 6px);
+              left: calc(#{$i} * 6px);
+              z-index: calc(#{$i} * 10);
+              &.flippable {
+                @include selectable-card(calc(#{$i} * 6px));
+              }
+            }
+          }
+        }
+      }
+      &.player-1-mat {
+        grid-area: player1-mat;
+      }
+      &.player-2-mat {
+        grid-area: player2-mat;
+      }
+      &.player-3-mat {
+        grid-area: player3-mat;
+      }
+      &.player-4-mat {
+        grid-area: player4-mat;
+      }
+    }
+    .player-flip-area {
+      grid-area: player-flip;
+      place-content: center;
+    }
   }
 
   .player {
-    border: 1px solid #222;
+    align-items: center;
     display: flex;
     justify-content: space-evenly;
-    align-items: center;
     position: relative;
     .hand {
       display: flex;
+      flex: 0 0 50%;
       .card {
-        background: purple;
-        border-radius: 100%;
-        margin: 4px;
+        @include base-card;
+        &.face-down {
+          background: $card-back;
+        }
       }  
     }
 
     &.current {
-      border: 1px solid red
+      border: 14px solid red;
     }
 
     &.player-1 {
       grid-area: player1;
-      .card {
-        background-color: #222;
+      .hand .card.face-up {
+        @include face-up-card;
       }
       &.idle .card {
-        cursor: pointer;
-        position: relative;
-        &:hover {
-          top: -8px;
-        }
+        @include selectable-card(0);
       }
       button:disabled {
         cursor: default;
