@@ -34,31 +34,44 @@ $player-mat-color: #405abbfa;
   }
 }
 
+@mixin card-stack {
+  position: absolute;
+  @for $i from 1 through 16 {
+    &:nth-child(#{$i}) {
+      top: calc(#{$i} * 6px);
+      left: calc(#{$i} * 6px);
+      z-index: calc(#{$i} * 10);
+      &.flippable {
+        @include selectable-card(calc(#{$i} * 6px));
+      }
+    }
+  }
+}
+
 .game-board {
   background: beige;
   color: #222;
   display: grid;
   height: 84vh;
-  grid-template-areas: ". player3 ."
-                       "player2 table player4"
-                       ". player1 .";
+  grid-template-areas:
+    '. player3 .'
+    'player2 table player4'
+    '. player1 .';
   grid-template-columns: 1fr 3fr 1fr;
   grid-template-rows: 1fr 3fr 1fr;
   width: 60vw;
-  .card.face-up {
-    @include face-up-card;
-  }
 
   .table {
     background-color: green;
     display: grid;
     grid-area: table;
-    grid-template-areas: ". player3-mat player3-flip"
-                         "player2-mat player-flip player4-mat"
-                         "player2-flip player1-mat player1-flip";
+    grid-template-areas:
+      '. player3-mat player3-flip'
+      'player2-mat player-flip player4-mat'
+      'player2-flip player1-mat player1-flip';
     grid-template-columns: 1fr 1fr 1fr;
     grid-template-rows: 1fr 1fr 1fr;
-    
+
     .player-mat-area {
       place-content: center;
       place-items: center;
@@ -71,18 +84,8 @@ $player-mat-color: #405abbfa;
         width: 120px;
         .card.played-card {
           @include face-down-card;
-          position: absolute;
+          @include card-stack;
           width: 0;
-          @for $i from 1 through 4 {
-            &:nth-child(#{$i}) {
-              top: calc(#{$i} * 6px);
-              left: calc(#{$i} * 6px);
-              z-index: calc(#{$i} * 10);
-              &.flippable {
-                @include selectable-card(calc(#{$i} * 6px));
-              }
-            }
-          }
         }
       }
       &.player-1-mat {
@@ -101,6 +104,11 @@ $player-mat-color: #405abbfa;
     .player-flip-area {
       grid-area: player-flip;
       place-content: center;
+      position: relative;
+      .card.face-up {
+        @include face-up-card;
+        @include card-stack;
+      }
     }
   }
 
@@ -117,7 +125,7 @@ $player-mat-color: #405abbfa;
         &.face-down {
           background: $card-back;
         }
-      }  
+      }
     }
 
     &.current {
@@ -153,6 +161,5 @@ $player-mat-color: #405abbfa;
     &.player-4 {
       grid-area: player4;
     }
-
   }
 }
