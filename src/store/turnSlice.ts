@@ -10,6 +10,12 @@ export const createTurnSlice: StateCreator<
 > = (set, get) => ({
   playerTurn: stubPlayers[2],
 
+  setPlayerTurn: (playerId) =>
+    set(
+      (state) => ({ ...state, playerTurn: state.players[playerId] }),
+      undefined,
+      'turn/setPlayerTurn'
+    ),
   passTurn: () => {
     const { playerTurn } = get()
     const activePlayers = getActivePlayers()

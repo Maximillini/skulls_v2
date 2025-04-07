@@ -1,6 +1,6 @@
 import { StateCreator } from 'zustand'
-import { GameState, PlayerSlice, Player } from '../types'
-import { stubPlayers, updatePlayerState } from './utils'
+import { GameState, PlayerSlice, Player, Cards } from '../types'
+import { removeTopCard, stubPlayers, updatePlayerState } from './utils'
 
 export const createPlayerSlice: StateCreator<
   GameState,
@@ -9,6 +9,8 @@ export const createPlayerSlice: StateCreator<
   PlayerSlice
 > = (set) => ({
   players: stubPlayers,
+  playerHasFlippedOwnCards: (playerId) => (state: GameState) =>
+    state.players[playerId].playedCards.length <= 1,
 
   addPlayer: (player: Player) =>
     set(
@@ -21,18 +23,22 @@ export const createPlayerSlice: StateCreator<
     set(
       (state) => ({
         ...state,
-        players: {
-          ...state.players,
-          [player.id]: {
-            ...state.players[player.id],
-            isInactive: true,
-          },
-        },
+        ...updatePlayerState(state, player.id, { isInactive: true }),
       }),
       undefined,
       'player/deactivatePlayer'
     )
   },
+
+  setPlayerState: (playerId, prop, value) =>
+    set(
+      (state) => ({
+        ...state,
+        ...updatePlayerState(state, playerId, { [prop]: value }),
+      }),
+      undefined,
+      'player/setPlayerState'
+    ),
 
   resetAllPlayersStatus: (prop, value) =>
     set(
@@ -88,18 +94,23 @@ export const createPlayerSlice: StateCreator<
     )
   },
 
-  flipCard: (playerId, card, playerMatId) => {
+  flipCard: (card, playerMatId) => {
     set(
       (state) => ({
         ...state,
-        flippedCards: [...state.flippedCards, card],
-        ...updatePlayerState(state, playerMatId, {
-          playedCards: (() =>
-            state.players[playerMatId].playedCards.slice(0, -1))(),
-          flippedOwnCards: (() =>
-            playerId === playerMatId &&
-            state.players[playerId].playedCards.length === 1)(),
-        }),
+        flippedCards: [...state.flippedCards, card] as Cards,
+        players: {
+          ...state.players,
+          [playerMatId]: {
+            ...state.players[playerMatId],
+            playedCards: (() =>
+              removeTopCard(state.players[playerMatId].playedCards))(),
+            tempCardZone: (() => [
+              ...state.players[playerMatId].tempCardZone,
+              card,
+            ])(),
+          },
+        },
       }),
       undefined,
       'player/flipCard'
