@@ -6,10 +6,12 @@ import { createSelectors } from './utils'
 import { GameState } from '../types'
 import { devtools } from 'zustand/middleware'
 
-const gameStore = create<GameState>()(devtools((...a) => ({
-  ...createGameSlice(...a),
-  ...createPlayerSlice(...a),
-  ...createTurnSlice(...a),
-})))
+const gameStore = create<GameState>()(
+  devtools((...a) => ({
+    ...createGameSlice(...a),
+    ...createPlayerSlice(...a),
+    ...createTurnSlice(...a),
+  }))
+)
 
 export const useGameStateStore = createSelectors(gameStore)

@@ -1,34 +1,64 @@
 import { StateCreator } from 'zustand'
-import { GameState, PlayerSlice, Player } from '../types'
-import { getRandomCard, stubPlayers, allPlayersReady, allPlayersPlacedOne } from './utils'
+import { GameState, PlayerSlice, Player, Cards } from '../types'
+import { removeTopCard, stubPlayers, updatePlayerState } from './utils'
 
-export const createPlayerSlice: StateCreator<GameState, [['zustand/devtools', never]], [], PlayerSlice> = (set, get) => ({
+export const createPlayerSlice: StateCreator<
+  GameState,
+  [['zustand/devtools', never]],
+  [],
+  PlayerSlice
+> = (set) => ({
   players: stubPlayers,
-  addPlayer: (player: Player) => set((state) => ({ players: { ...state.players, [player.id]: player } }), undefined, 'player/addPlayer'),
+  playerHasFlippedOwnCards: (playerId) => (state: GameState) =>
+    state.players[playerId].playedCards.length <= 1,
+
+  addPlayer: (player: Player) =>
+    set(
+      (state) => ({ players: { ...state.players, [player.id]: player } }),
+      undefined,
+      'player/addPlayer'
+    ),
+
   deactivatePlayer: (player) => {
-    set((state) => ({ 
-      players: { 
-        ...state.players, 
-        [player.id]: {
-          ...state.players[player.id],
-          isInactive: true,
-        }
-      }
-    }), undefined, 'player/deactivatePlayer')
+    set(
+      (state) => ({
+        ...state,
+        ...updatePlayerState(state, player.id, { isInactive: true }),
+      }),
+      undefined,
+      'player/deactivatePlayer'
+    )
   },
 
-  resetAllPlayersStatus: (prop, value) => set((state) => ({
-    players: Object.fromEntries((Object.entries(state.players).map(([id, player]) => 
-    [id, {...player, [prop]: value}])))
-  }), undefined, 'player/resetAllPlayersStatus'),
+  setPlayerState: (playerId, prop, value) =>
+    set(
+      (state) => ({
+        ...state,
+        ...updatePlayerState(state, playerId, { [prop]: value }),
+      }),
+      undefined,
+      'player/setPlayerState'
+    ),
+
+  resetAllPlayersStatus: (prop, value) =>
+    set(
+      (state) => ({
+        players: Object.fromEntries(
+          Object.entries(state.players).map(([id, player]) => [
+            id,
+            { ...player, [prop]: value },
+          ])
+        ),
+      }),
+      undefined,
+      'player/resetAllPlayersStatus'
+    ),
 
   // KEEP THIS FUNCTION PURE
   placeCard: (playerId, card) => {
-    set((state) => ({
-      players: {
-        ...state.players,
-        [playerId]: {
-          ...state.players[playerId],
+    set(
+      (state) =>
+        updatePlayerState(state, playerId, {
           playedCards: [...state.players[playerId].playedCards, card],
           hand: (() => {
             const newHand = [...state.players[playerId].hand]
@@ -38,109 +68,52 @@ export const createPlayerSlice: StateCreator<GameState, [['zustand/devtools', ne
             return newHand
           })(),
           ready: true,
-        }
-      }
-    }), undefined, 'player/placeCard')
+        }),
+      undefined,
+      'player/placeCard'
+    )
   },
 
   // KEEP THIS FUNCTION PURE
   placeBet: (playerId, bet) => {
-    set((state) => ({
-      ...state,
-      currentHighBet: bet,
-      players: {
-        ...state.players,
-        [playerId]: {
-          ...state.players[playerId],
-          currentBet: bet
-        }
-      }
-    }), undefined, 'player/placeBet')
+    set(
+      (state) => ({
+        ...{ currentHighBet: bet },
+        ...updatePlayerState(state, playerId, { currentBet: bet }),
+      }),
+      undefined,
+      'player/placeBet'
+    )
   },
 
   passBet: (playerId) => {
-    set((state) => ({
-      players: {
-        ...state.players,
-        [playerId]: { 
-          ...state.players[playerId],
-          hasPassedBetting: true 
-        }
-      }
-    }), undefined, 'player/passBet')
+    set(
+      (state) => updatePlayerState(state, playerId, { hasPassedBetting: true }),
+      undefined,
+      'player/passBet'
+    )
   },
 
-  flipCard: (playerId, card, playerMatId) => {
-    set((state) => ({
-      ...state,
-      flippedCards: [...state.flippedCards, card],
-      players: {
-        ...state.players,
-        [playerMatId]: {
-          ...state.players[playerMatId],
-          playedCards: (() => state.players[playerMatId].playedCards.slice(0, -1))(),
-          flippedOwnCards: (() => (playerId === playerMatId && state.players[playerId].playedCards.length === 1))()
+  flipCard: (card, playerMatId) => {
+    set(
+      (state) => ({
+        ...state,
+        flippedCards: [...state.flippedCards, card] as Cards,
+        players: {
+          ...state.players,
+          [playerMatId]: {
+            ...state.players[playerMatId],
+            playedCards: (() =>
+              removeTopCard(state.players[playerMatId].playedCards))(),
+            tempCardZone: (() => [
+              ...state.players[playerMatId].tempCardZone,
+              card,
+            ])(),
+          },
         },
-      }
-    }), undefined, 'player/flipCard')
+      }),
+      undefined,
+      'player/flipCard'
+    )
   },
-
-  // TODO - Split this function into smaller functions for each specific phase
-  handleComputerTurns: () => {
-    const { 
-      players, 
-      phase, 
-      placeCard, 
-      playerTurn, 
-      passTurn, 
-      handleComputerTurns, 
-      startNextPhase,
-      currentHighBet,
-      placeBet 
-    } = get()
-
-    if (phase === 'opening') {
-      if (!allPlayersPlacedOne(players)) {
-        const computerPlayer = Object.values(players).find((player) => player.isComputer && !player.ready)
-
-        if (computerPlayer === undefined) return
-        if (computerPlayer?.playedCards.length !== 1) {
-          setTimeout(() => {
-            placeCard(computerPlayer?.id || 2, getRandomCard(computerPlayer))
-            handleComputerTurns()
-          }, Math.random() * 1200)
-        }
-      }
-
-      if (allPlayersReady(players) && allPlayersPlacedOne(players)) {
-        return startNextPhase()
-      }
-    }
-
-    if (phase === 'placing' && playerTurn?.isComputer) {
-      const computerPlayer = playerTurn
-      if (!computerPlayer) return
-
-      if (computerPlayer.hand.length === 0) return startNextPhase()
-
-      setTimeout(() => {
-        placeCard(computerPlayer.id, getRandomCard(computerPlayer))
-        passTurn()
-        handleComputerTurns()
-      }, Math.random() * 2600)
-    }
-
-    if (phase === 'betting' && playerTurn?.isComputer) {
-      const computerPlayer = playerTurn
-      const maxBet = Object.values(players).reduce((acc, player) => (player.playedCards.length + acc), 0)
-
-      if (currentHighBet === maxBet) return startNextPhase()
-
-      setTimeout(() => {
-        placeBet(computerPlayer.id, currentHighBet + 1)
-        passTurn()
-        handleComputerTurns()
-      }, Math.random() * 2000)
-    }
-  }
 })

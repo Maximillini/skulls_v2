@@ -1,10 +1,22 @@
-import { StateCreator } from 'zustand';
-import { allPlayersPlacedOne, allPlayersReady, stubPlayers } from './utils';
+import { StateCreator } from 'zustand'
+import { allPlayersPlacedOne, allPlayersReady, stubPlayers } from './utils'
 import { Phase, GameSlice, GameState } from '../types'
+import { handleComputerTurns } from './utils/ai'
 
-const PHASES: Phase[] = ['opening', 'placing', 'betting', 'flipping', 'discarding']
+const PHASES: Phase[] = [
+  'opening',
+  'placing',
+  'betting',
+  'flipping',
+  'discarding',
+]
 
-export const createGameSlice: StateCreator<GameState, [['zustand/devtools', never]], [], GameSlice> = (set, get) => ({
+export const createGameSlice: StateCreator<
+  GameState,
+  [['zustand/devtools', never]],
+  [],
+  GameSlice
+> = (set, get) => ({
   isGameRunning: false,
   phases: PHASES,
   phaseIdx: 0,
@@ -15,19 +27,19 @@ export const createGameSlice: StateCreator<GameState, [['zustand/devtools', neve
   startGame: () => set(() => ({ isGameRunning: true })),
   changeToPhase: (phase) => set({ phase }, undefined, 'game/changeToPhase'),
   startNextPhase: (options?: { playerHitSkull: boolean }) => {
-    const { phase, changeToPhase, players, resetAllPlayersStatus, playerTurn, handleComputerTurns } = get()
+    const { phase, changeToPhase, players, resetAllPlayersStatus } = get()
 
-    if (phase === 'opening' && allPlayersReady(players) && allPlayersPlacedOne(players)) {
+    if (
+      phase === 'opening' &&
+      allPlayersReady(players) &&
+      allPlayersPlacedOne(players)
+    ) {
       changeToPhase('placing')
     }
 
-    if (phase === 'placing') {
-      changeToPhase('betting')
-    }
+    if (phase === 'placing') changeToPhase('betting')
 
-    if (phase === 'betting') {
-      changeToPhase('flipping')
-    }
+    if (phase === 'betting') changeToPhase('flipping')
 
     if (phase === 'flipping') {
       if (options?.playerHitSkull) {
@@ -40,6 +52,6 @@ export const createGameSlice: StateCreator<GameState, [['zustand/devtools', neve
     }
 
     resetAllPlayersStatus('ready', false)
-    playerTurn.isComputer && handleComputerTurns()
-  }
+    handleComputerTurns()
+  },
 })

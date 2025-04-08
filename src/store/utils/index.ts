@@ -1,5 +1,5 @@
 import { StoreApi, UseBoundStore } from 'zustand'
-import { Card, GameState, Player, Players } from '../../types'
+import { Card, Cards, GameState, Player, Players } from '../../types'
 import { useGameStateStore } from '..'
 
 export const allPlayersReady = (players: Players) =>
@@ -44,11 +44,19 @@ export const getMaximumBet = () => {
   )
 }
 
-export const updatePlayerState = (
+/**
+ * Returns a new list of players with the state of the given player by id updated, returns {@link Players}
+ * @param state {@link GameState}
+ * @param playerId id of the player to be updated
+ * @param updates object containing the updated prop and value of state of the player
+ *
+ * @returns Players - an object containing a list of players with updated state
+ */
+export const updatePlayerState: (
   state: GameState,
   playerId: number,
   updates: Partial<Player>
-) => ({
+) => { players: { [x: number]: Player } } = (state, playerId, updates) => ({
   players: {
     ...state.players,
     [playerId]: {
@@ -62,19 +70,31 @@ export const isFlippable = (
   playerMat: Player,
   player: Player,
   idx: number,
-  cards: (0 | 1)[]
+  cards: Cards
 ) => {
   const phase = useGameStateStore.getState().phase
+  const playerHasFlippedOwnCards =
+    useGameStateStore.getState().playerHasFlippedOwnCards
+
+  if (phase !== 'flipping') return false
+
+  console.log({ playerMat, player, idx, cards })
+
   const isTopCard = idx === cards.length - 1
-  const isFlippingPhase = phase === 'flipping'
   const isPlayersOwnMat = player.id === playerMat.id
 
-  return (
-    isTopCard && isFlippingPhase && (isPlayersOwnMat || player.flippedOwnCards)
-  )
+  return isTopCard && (isPlayersOwnMat || playerHasFlippedOwnCards)
 }
 
 export const cardValue = (card: Card) => (card === 1 ? '🌸' : '💀')
+
+export const removeTopCard = (cards: Cards) => {
+  const cardStackCopy = [...cards]
+
+  cardStackCopy.pop()
+
+  return cardStackCopy
+}
 
 type WithSelectors<S> = S extends { getState: () => infer T }
   ? S & { use: { [K in keyof T]: () => T[K] } }
@@ -91,7 +111,7 @@ export const createSelectors = <S extends UseBoundStore<StoreApi<object>>>(
   const store = _store as WithSelectors<typeof _store>
   store.use = {}
   for (const k of Object.keys(store.getState())) {
-    // eslint-disable-
+    // eslint-disable-next-line
     ;(store.use as any)[k] = () => store((s) => s[k as keyof typeof s])
   }
 
@@ -103,7 +123,7 @@ const fakePlayer: Player = {
   name: 'Player-1',
   hand: [1, 1, 1, 0],
   playedCards: [],
-  flippedOwnCards: false,
+  tempCardZone: [],
   discarded: [],
   challengesWon: 0,
   ready: false,
