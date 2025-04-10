@@ -1,6 +1,6 @@
 import { StateCreator } from 'zustand'
-import { GameState, PlayerSlice, Player, Cards } from '../types'
-import { removeTopCard, stubPlayers, updatePlayerState } from './utils'
+import { GameState, PlayerSlice, Player } from '../types'
+import { stubPlayers, updatePlayerState } from './utils'
 
 export const createPlayerSlice: StateCreator<
   GameState,
@@ -9,9 +9,6 @@ export const createPlayerSlice: StateCreator<
   PlayerSlice
 > = (set) => ({
   players: stubPlayers,
-  playerHasFlippedOwnCards: (playerId) => (state: GameState) =>
-    state.players[playerId].playedCards.length <= 1,
-
   addPlayer: (player: Player) =>
     set(
       (state) => ({ players: { ...state.players, [player.id]: player } }),
@@ -94,23 +91,14 @@ export const createPlayerSlice: StateCreator<
     )
   },
 
-  flipCard: (card, playerMatId) => {
+  flipCard: (playerMatId, cardIdx) => {
     set(
       (state) => ({
         ...state,
-        flippedCards: [...state.flippedCards, card] as Cards,
-        players: {
-          ...state.players,
-          [playerMatId]: {
-            ...state.players[playerMatId],
-            playedCards: (() =>
-              removeTopCard(state.players[playerMatId].playedCards))(),
-            tempCardZone: (() => [
-              ...state.players[playerMatId].tempCardZone,
-              card,
-            ])(),
-          },
-        },
+        flippedCards: [
+          ...state.flippedCards,
+          { playerId: playerMatId, index: cardIdx },
+        ],
       }),
       undefined,
       'player/flipCard'
