@@ -17,8 +17,8 @@ $player-mat-color: #405abbfa;
 
 @mixin face-up-card {
   background-color: #222;
-  font-size: 2em;
-  padding: 1em;
+  font-size: 1.8em;
+  padding: 0.8em;
 }
 
 @mixin selectable-card($top) {
@@ -30,6 +30,14 @@ $player-mat-color: #405abbfa;
     box-shadow: rgba(10, 10, 10, 0.5) 0 14px 4px;
     z-index: 100;
   }
+}
+
+@function rand($max) {
+  @return calc((-1 * $max) + (random($max) * 1.5px));
+}
+
+@function transform-on-flip($mult, $offset) {
+  @return calc(($mult * 18px) + 30px + rand($offset));
 }
 
 @mixin card-stack {
@@ -44,8 +52,9 @@ $player-mat-color: #405abbfa;
       }
       &.face {
         transform: rotateY(180deg)
-          translateX(calc((#{$i} * 18px) + 30px))
-          translateY(calc((#{$i} * 18px) + 30px));
+          translateX(transform-on-flip(#{$i}, 100px))
+          translateY(transform-on-flip(#{$i}, 100px));
+        z-index: calc(10 - #{$i});
       }
     }
   }
