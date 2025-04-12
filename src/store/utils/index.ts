@@ -1,5 +1,12 @@
 import { StoreApi, UseBoundStore } from 'zustand'
-import { Card, Cards, GameState, Player, Players } from '../../types'
+import {
+  Card,
+  Cards,
+  GameState,
+  Player,
+  Players,
+  FlippedCard,
+} from '../../types'
 import { useGameStateStore } from '..'
 
 export const allPlayersReady = (players: Players) =>
@@ -66,26 +73,6 @@ export const updatePlayerState: (
   },
 })
 
-export const isFlippable = (
-  playerMat: Player,
-  player: Player,
-  idx: number,
-  cards: Cards
-) => {
-  const phase = useGameStateStore.getState().phase
-  const playerHasFlippedOwnCards =
-    useGameStateStore.getState().playerHasFlippedOwnCards
-
-  if (phase !== 'flipping') return false
-
-  console.log({ playerMat, player, idx, cards })
-
-  const isTopCard = idx === cards.length - 1
-  const isPlayersOwnMat = player.id === playerMat.id
-
-  return isTopCard && (isPlayersOwnMat || playerHasFlippedOwnCards)
-}
-
 export const cardValue = (card: Card) => (card === 1 ? '🌸' : '💀')
 
 export const removeTopCard = (cards: Cards) => {
@@ -95,6 +82,30 @@ export const removeTopCard = (cards: Cards) => {
 
   return cardStackCopy
 }
+
+export const isCardFlipped = (
+  playerId: number,
+  idx: number,
+  flippedCards: FlippedCard[]
+) => flippedCards.some((fc) => fc.playerId === playerId && fc.index === idx)
+
+export const topUnflippedIndex = (
+  playerId: number,
+  cards: Cards,
+  flippedCards: FlippedCard[]
+) =>
+  [...cards]
+    .map((_, i) => i)
+    .reverse()
+    .find((i) => !isCardFlipped(playerId, i, flippedCards))
+
+export const hasFlippedAllOwnCards = (
+  flippingPlayer: Player,
+  flippedCards: FlippedCard[]
+) =>
+  flippingPlayer.playedCards.every((_, i) =>
+    isCardFlipped(flippingPlayer.id, i, flippedCards)
+  )
 
 type WithSelectors<S> = S extends { getState: () => infer T }
   ? S & { use: { [K in keyof T]: () => T[K] } }
@@ -123,7 +134,6 @@ const fakePlayer: Player = {
   name: 'Player-1',
   hand: [1, 1, 1, 0],
   playedCards: [],
-  tempCardZone: [],
   discarded: [],
   challengesWon: 0,
   ready: false,

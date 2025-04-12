@@ -6,49 +6,46 @@ import { usePlayerInput } from '../../hooks/usePlayerInput'
 import { usePhase } from '../../hooks/usePhase'
 import { getMaximumBet } from '../../store/utils'
 
-export const HumanPlayerArea = React.memo(
-  ({ playerId }: { playerId: number }) => {
-    const currentHighBet = useGameStateStore.use.currentHighBet()
-    const { handlePlaceCard, handlePassBet, handleChangePhase } =
-      usePlayerInput()
-    const { player, isPlayerTurn } = usePlayer(playerId)
-    const { isPhase } = usePhase()
+export const HumanPlayerArea = React.memo(() => {
+  const currentHighBet = useGameStateStore.use.currentHighBet()
+  const { handlePlaceCard, handlePassBet, handleChangePhase } = usePlayerInput()
+  const { player, isPlayerTurn } = usePlayer(1)
+  const { isPhase } = usePhase()
 
-    const userActionButtons = useMemo(
-      () => (
-        <>
-          {isPhase('placing') && (
-            <button
-              onClick={() => handleChangePhase('betting')}
-              disabled={!isPlayerTurn()}
-            >
-              Place Bet
-            </button>
-          )}
-
-          {isPhase('betting') && (
-            <button onClick={() => handlePassBet()}>Pass</button>
-          )}
-        </>
-      ),
-      [isPhase, handlePassBet, handleChangePhase, isPlayerTurn]
-    )
-
-    return (
-      <BasePlayerArea
-        player={player}
-        isCurrentTurn={isPlayerTurn()}
-        onCardClick={(card) => handlePlaceCard(player, card)}
-        canSelectCard={isPhase('opening')}
-      >
-        {userActionButtons}
-        {isPhase('betting') && isPlayerTurn() && (
-          <UserBetMenu currentHighBet={currentHighBet} />
+  const userActionButtons = useMemo(
+    () => (
+      <>
+        {isPhase('placing') && (
+          <button
+            onClick={() => handleChangePhase('betting')}
+            disabled={!isPlayerTurn()}
+          >
+            Place Bet
+          </button>
         )}
-      </BasePlayerArea>
-    )
-  }
-)
+
+        {isPhase('betting') && (
+          <button onClick={() => handlePassBet()}>Pass</button>
+        )}
+      </>
+    ),
+    [isPhase, handlePassBet, handleChangePhase, isPlayerTurn]
+  )
+
+  return (
+    <BasePlayerArea
+      player={player}
+      isCurrentTurn={isPlayerTurn()}
+      onCardClick={(card) => handlePlaceCard(player, card)}
+      canSelectCard={isPhase('opening') || isPhase('placing')}
+    >
+      {userActionButtons}
+      {isPhase('betting') && isPlayerTurn() && (
+        <UserBetMenu currentHighBet={currentHighBet} />
+      )}
+    </BasePlayerArea>
+  )
+})
 
 const UserBetMenu = ({ currentHighBet }: { currentHighBet: number }) => {
   const [bet, setBet] = useState(currentHighBet + 1)

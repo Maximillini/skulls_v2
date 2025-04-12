@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react'
+import React from 'react'
 import { PlayerCard } from '../PlayerCard'
 import { Card, Player } from '../../types'
 import { usePlayer } from '../../hooks/usePlayer'
@@ -18,21 +18,12 @@ export const BasePlayerArea = ({
   onCardClick,
   children,
 }: BasePlayerAreaProps) => {
-  useEffect(() => {
-    console.log(`Player ${player.id} rendered:`, renders.current)
-  }, [player])
-
-  const renders = useRef(0)
-
-  renders.current = renders.current + 1
-
   return (
     <div
       className={`player player-${player.id} ${
         canSelectCard ? 'idle' : 'ready'
       } ${isCurrentTurn ? 'current' : ''}`}
     >
-      <div>renders: {renders.current}</div>
       <div className="player-name-area">
         {player.name}
         <br />
@@ -45,13 +36,13 @@ export const BasePlayerArea = ({
             idx={i}
             key={i}
             handleClick={onCardClick ? () => onCardClick(card) : undefined}
-            faceUp={player.id === 1}
+            isFlipped={player.id === 1}
           />
         ))}
       </div>
       <div className="discard">
         {player.discarded.map((card, i) => (
-          <PlayerCard card={card} idx={i} key={i} faceUp={player.id === 1} />
+          <PlayerCard card={card} idx={i} key={i} isFlipped={player.id === 1} />
         ))}
       </div>
     </div>

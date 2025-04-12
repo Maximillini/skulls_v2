@@ -4,7 +4,6 @@ export type Player = {
   hand: Cards
   playedCards: Cards
   discarded: Cards
-  tempCardZone: Cards
   challengesWon: number
   // TODO - Think of more descriptive name than 'ready'
   ready: boolean
@@ -18,11 +17,12 @@ export type Players = Record<number, Player>
 
 export type GameSlice = {
   isGameRunning: boolean
+  rounds: number
   phases: Phase[]
   phaseIdx: number
   phase: Phase
   currentHighBet: number
-  flippedCards: Cards
+  flippedCards: FlippedCard[]
   startGame: () => void
   changeToPhase: (phase: Phase) => void
   startNextPhase: () => void
@@ -30,7 +30,6 @@ export type GameSlice = {
 
 export type PlayerSlice = {
   players: Record<number, Player>
-  playerHasFlippedOwnCards: (playerId: number) => void
   addPlayer: (player: Player) => void
   deactivatePlayer: (player: Player) => void
   resetAllPlayersStatus: (
@@ -45,7 +44,7 @@ export type PlayerSlice = {
   placeCard: (playerId: number, card: Card) => void
   placeBet: (playerId: number, bet: number) => void
   passBet: (playerId: number) => void
-  flipCard: (card: Card, playerMatId: number) => void
+  flipCard: (playerMatId: number, cardIdx: number) => void
 }
 
 export type TurnSlice = {
@@ -56,6 +55,7 @@ export type TurnSlice = {
 
 export type Card = 0 | 1
 export type Cards = Card[]
+export type FlippedCard = { playerId: number; index: number }
 
 export type GameState = GameSlice & PlayerSlice & TurnSlice
 
