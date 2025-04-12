@@ -23,6 +23,7 @@ export const usePlayerInput = () => {
   const flipCard = useGameStateStore.use.flipCard()
   const setPlayerTurn = useGameStateStore.use.setPlayerTurn()
   const flippedCards = useGameStateStore.use.flippedCards()
+  const currentHighBet = useGameStateStore.use.currentHighBet()
 
   const canSelectCard = (player: Player) =>
     (phase === 'opening' && !player.ready && player.playedCards.length < 1) ||
@@ -63,6 +64,8 @@ export const usePlayerInput = () => {
 
   const handleFlipCard = (playerMatId: number, idx: number, card: Card) => {
     flipCard(playerMatId, idx)
+
+    if (flippedCards.length === currentHighBet) return changeToPhase('opening')
 
     if (card === 0) {
       return changeToPhase('discarding')
