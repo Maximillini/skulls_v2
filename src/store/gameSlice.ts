@@ -24,6 +24,8 @@ export const createGameSlice: StateCreator<
   phase: PHASES[0] as Phase,
   currentHighBet: 0,
   flippedCards: [],
+  hitOwnSkull: false,
+  isPaused: false,
 
   setGameState: (prop, value) => set((state) => ({ ...state, [prop]: value })),
   startGame: () => set(() => ({ isGameRunning: true })),

@@ -28,6 +28,9 @@ export const usePlayerInput = () => {
   const currentHighBet = useGameStateStore.use.currentHighBet()
   const setPlayerState = useGameStateStore.use.setPlayerState()
   const discardCard = useGameStateStore.use.discardCard()
+  const setGameState = useGameStateStore.use.setGameState()
+  const isPaused = useGameStateStore.use.isPaused()
+  const hitOwnSkull = useGameStateStore.use.hitOwnSkull()
 
   const canSelectCard = (player: Player) =>
     (phase === 'opening' && !player.ready && player.playedCards.length < 1) ||
@@ -54,7 +57,7 @@ export const usePlayerInput = () => {
     idx: number,
     cards: Cards
   ) => {
-    if (phase !== 'flipping') return false
+    if (phase !== 'flipping' || isPaused) return false
 
     const topIdx = topUnflippedIndex(playerMat.id, cards, flippedCards)
     const isTopCard = idx === topIdx
@@ -70,20 +73,28 @@ export const usePlayerInput = () => {
     flipCard(playerMatId, idx)
 
     if (card === 0) {
+      setGameState('isPaused', true)
       if (playerMatId === HUMAN_PLAYER) {
-        sleep(() =>
+        setGameState('hitOwnSkull', true)
+
+        sleep(() => {
           startNextPhase({ playerHitSkull: true, playerId: HUMAN_PLAYER })
-        )
+        })
+
         return
       }
 
-      sleep(() => startNextPhase({ playerHitSkull: true }))
+      sleep(() => {
+        setGameState('isPaused', false)
+        startNextPhase({ playerHitSkull: true })
+      })
       return
     }
 
     if (flippedCards.length === currentHighBet - 1) {
       if (playerTurn.hasWonChallenge) {
-        console.log(`${playerTurn.name} Wins!`)
+        setGameState('isPaused', true)
+        return console.log(`${playerTurn.name} Wins!`)
       }
 
       return sleep(() => {
@@ -116,10 +127,12 @@ export const usePlayerInput = () => {
 
   const handleSelfDiscard = (cardIdx: number) => {
     discardCard(players[HUMAN_PLAYER], cardIdx)
+    setGameState('hitOwnSkull', false)
     startNextPhase()
   }
 
   return {
+    hitOwnSkull,
     phase,
     handlePlaceCard,
     handlePlaceBet,

@@ -14,6 +14,7 @@ export const HumanPlayerArea = React.memo(() => {
     handlePassBet,
     handleChangePhase,
     handleSelfDiscard,
+    hitOwnSkull,
   } = usePlayerInput()
   const { player, isPlayerTurn } = usePlayer(1)
   const { isPhase } = usePhase()
@@ -43,9 +44,11 @@ export const HumanPlayerArea = React.memo(() => {
       if (isPhase('opening') || isPhase('placing'))
         return handlePlaceCard(player, card)
 
-      if (isPhase('discarding')) return handleSelfDiscard(idx)
+      if (isPhase('discarding') && hitOwnSkull) return handleSelfDiscard(idx)
+
+      return null
     },
-    [isPhase, handlePlaceCard, handleSelfDiscard, player]
+    [isPhase, handlePlaceCard, handleSelfDiscard, player, hitOwnSkull]
   )
 
   return (
@@ -54,7 +57,9 @@ export const HumanPlayerArea = React.memo(() => {
       isCurrentTurn={isPlayerTurn()}
       onCardClick={(card, idx) => getCardClickHandler(card, idx)}
       canSelectCard={
-        isPhase('opening') || isPhase('placing') || isPhase('discarding')
+        isPhase('opening') ||
+        isPhase('placing') ||
+        (isPhase('discarding') && hitOwnSkull)
       }
     >
       {userActionButtons}

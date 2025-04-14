@@ -23,6 +23,8 @@ export type GameSlice = {
   phase: Phase
   currentHighBet: number
   flippedCards: FlippedCard[]
+  hitOwnSkull: boolean
+  isPaused: boolean
   startGame: () => void
   setGameState: (
     prop: keyof GameSlice,
