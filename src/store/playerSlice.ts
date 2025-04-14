@@ -51,7 +51,6 @@ export const createPlayerSlice: StateCreator<
       'player/resetAllPlayersStatus'
     ),
 
-  // KEEP THIS FUNCTION PURE
   placeCard: (playerId, card) => {
     set(
       (state) =>
@@ -71,7 +70,6 @@ export const createPlayerSlice: StateCreator<
     )
   },
 
-  // KEEP THIS FUNCTION PURE
   placeBet: (playerId, bet) => {
     set(
       (state) => ({

@@ -7,5 +7,5 @@ export const usePhase = () => {
 
   const isPhase = (p: Phase) => phase === p
 
-  return { isPhase, changeToPhase }
+  return { phase, isPhase, changeToPhase }
 }

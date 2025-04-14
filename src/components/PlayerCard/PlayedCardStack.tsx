@@ -22,12 +22,16 @@ export const PlayedCardStack = ({
     }
   }
 
+  if (!cards) return
+
   return (
     <>
-      {cards.map((card, idx) => {
-        const isFlipped = flippedCards.some(
-          (fc: FlippedCard) => fc.playerId === playerMat.id && fc.index === idx
-        )
+      {cards?.map((card, idx) => {
+        const isFlipped =
+          flippedCards.some(
+            (fc: FlippedCard) =>
+              fc.playerId === playerMat.id && fc.index === idx
+          ) && isPhase('flipping')
 
         return (
           <PlayerCard
