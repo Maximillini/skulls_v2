@@ -53,7 +53,9 @@ export const HumanPlayerArea = React.memo(() => {
       player={player}
       isCurrentTurn={isPlayerTurn()}
       onCardClick={(card, idx) => getCardClickHandler(card, idx)}
-      canSelectCard={isPhase('opening') || isPhase('placing')}
+      canSelectCard={
+        isPhase('opening') || isPhase('placing') || isPhase('discarding')
+      }
     >
       {userActionButtons}
       {isPhase('betting') && isPlayerTurn() && (
