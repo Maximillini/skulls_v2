@@ -1,4 +1,5 @@
 import { PlayerCard } from '.'
+import { usePhase } from '../../hooks/usePhase'
 import { usePlayerInput } from '../../hooks/usePlayerInput'
 import { useGameStateStore } from '../../store'
 import { Card, Cards, FlippedCard, Player } from '../../types'
@@ -10,6 +11,7 @@ export const PlayedCardStack = ({
   cards: Cards
   playerMat: Player
 }) => {
+  const { isPhase } = usePhase()
   const { handleFlipCard, isFlippable } = usePlayerInput()
   const playerTurn = useGameStateStore.use.playerTurn()
   const flippedCards = useGameStateStore.use.flippedCards()

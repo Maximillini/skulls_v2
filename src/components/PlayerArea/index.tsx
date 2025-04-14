@@ -42,7 +42,7 @@ export const BasePlayerArea = ({
       </div>
       <div className="discard">
         {player.discarded.map((card, i) => (
-          <PlayerCard card={card} idx={i} key={i} isFlipped={player.id === 1} />
+          <PlayerCard card={card} idx={i} key={i} isFlipped={false} />
         ))}
       </div>
     </div>
