@@ -27,6 +27,7 @@ export const usePlayerInput = () => {
   const flippedCards = useGameStateStore.use.flippedCards()
   const currentHighBet = useGameStateStore.use.currentHighBet()
   const setPlayerState = useGameStateStore.use.setPlayerState()
+  const discardCard = useGameStateStore.use.discardCard()
 
   const canSelectCard = (player: Player) =>
     (phase === 'opening' && !player.ready && player.playedCards.length < 1) ||
@@ -69,6 +70,13 @@ export const usePlayerInput = () => {
     flipCard(playerMatId, idx)
 
     if (card === 0) {
+      if (playerMatId === HUMAN_PLAYER) {
+        sleep(() =>
+          startNextPhase({ playerHitSkull: true, playerId: HUMAN_PLAYER })
+        )
+        return
+      }
+
       sleep(() => startNextPhase({ playerHitSkull: true }))
       return
     }
@@ -106,6 +114,11 @@ export const usePlayerInput = () => {
 
   const handleChangePhase = (p: Phase) => changeToPhase(p)
 
+  const handleSelfDiscard = (cardIdx: number) => {
+    discardCard(players[HUMAN_PLAYER], cardIdx)
+    startNextPhase()
+  }
+
   return {
     phase,
     handlePlaceCard,
@@ -113,6 +126,7 @@ export const usePlayerInput = () => {
     handlePassBet,
     handleFlipCard,
     handleChangePhase,
+    handleSelfDiscard,
     deactivatePlayer,
     canSelectCard,
     setPlayerTurn,

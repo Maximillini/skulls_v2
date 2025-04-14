@@ -7,7 +7,7 @@ type BasePlayerAreaProps = {
   player: Player
   isCurrentTurn: boolean
   canSelectCard?: boolean
-  onCardClick?: (card: Card) => void
+  onCardClick?: (card: Card, idx: number) => void
   children?: React.ReactNode
 }
 
@@ -30,12 +30,12 @@ export const BasePlayerArea = ({
         {children}
       </div>
       <div className="hand">
-        {player.hand.map((card, i) => (
+        {player.hand.map((card, idx) => (
           <PlayerCard
             card={card}
-            idx={i}
-            key={i}
-            handleClick={onCardClick ? () => onCardClick(card) : undefined}
+            idx={idx}
+            key={idx}
+            handleClick={onCardClick ? () => onCardClick(card, idx) : undefined}
             isFlipped={player.id === 1}
           />
         ))}
