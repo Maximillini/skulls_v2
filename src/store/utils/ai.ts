@@ -1,4 +1,9 @@
-import { allPlayersPlacedOne, allPlayersReady, getRandomCard } from '.'
+import {
+  allPlayersPlacedOne,
+  allPlayersReady,
+  getRandomCard,
+  getRandomCardIndex,
+} from '.'
 import { useGameStateStore } from '../index'
 
 export const handleComputerTurns = () => {
@@ -11,9 +16,10 @@ export const handleComputerTurns = () => {
     startNextPhase,
     currentHighBet,
     placeBet,
+    discardCard: computerDiscard,
   } = useGameStateStore.getState()
 
-  if (!playerTurn?.isComputer) return
+  if (!playerTurn?.isComputer && phase === 'placing') return
 
   if (phase === 'opening') {
     if (!allPlayersPlacedOne(players)) {
@@ -63,5 +69,16 @@ export const handleComputerTurns = () => {
       passTurn()
       handleComputerTurns()
     }, Math.random() * 2000)
+  }
+
+  if (phase === 'flipping') {
+    startNextPhase()
+  }
+
+  if (phase === 'discarding') {
+    setTimeout(() => {
+      computerDiscard(playerTurn, getRandomCardIndex(playerTurn))
+      startNextPhase()
+    }, 1000)
   }
 }
