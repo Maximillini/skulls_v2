@@ -29,7 +29,10 @@ export type GameSlice = {
     value: number | string | boolean | []
   ) => void
   changeToPhase: (phase: Phase) => void
-  startNextPhase: (options?: { playerHitSkull: boolean }) => void
+  startNextPhase: (options?: {
+    playerHitSkull: boolean
+    playerId?: number
+  }) => void
 }
 
 export type PlayerSlice = {

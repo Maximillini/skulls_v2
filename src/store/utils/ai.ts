@@ -16,7 +16,7 @@ export const handleComputerTurns = () => {
     startNextPhase,
     currentHighBet,
     placeBet,
-    discardCard: computerDiscard,
+    discardCard,
   } = useGameStateStore.getState()
 
   if (!playerTurn?.isComputer && phase === 'placing') return
@@ -77,7 +77,7 @@ export const handleComputerTurns = () => {
 
   if (phase === 'discarding') {
     setTimeout(() => {
-      computerDiscard(playerTurn, getRandomCardIndex(playerTurn))
+      discardCard(playerTurn, getRandomCardIndex(playerTurn))
       startNextPhase()
     }, 1000)
   }

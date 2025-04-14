@@ -28,7 +28,7 @@ export const createGameSlice: StateCreator<
   setGameState: (prop, value) => set((state) => ({ ...state, [prop]: value })),
   startGame: () => set(() => ({ isGameRunning: true })),
   changeToPhase: (phase) => set({ phase }, undefined, 'game/changeToPhase'),
-  startNextPhase: (options?: { playerHitSkull: boolean }) => {
+  startNextPhase: (options) => {
     const {
       phase,
       changeToPhase,
@@ -55,19 +55,19 @@ export const createGameSlice: StateCreator<
 
       if (options?.playerHitSkull) {
         changeToPhase('discarding')
+        if (options?.playerId === 1) return
       } else {
         changeToPhase('opening')
       }
-
-      setGameState('currentHighBet', 0)
     }
+
+    setGameState('currentHighBet', 0)
 
     if (phase === 'discarding') {
       changeToPhase('opening')
     }
 
     setTimeout(() => {
-      console.log(`computer sees this hand now: ${players[1].hand}`)
       resetAllPlayersStatus('ready', false)
       handleComputerTurns()
     }, 0)
