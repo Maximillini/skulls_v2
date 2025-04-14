@@ -11,6 +11,23 @@ type BasePlayerAreaProps = {
   children?: React.ReactNode
 }
 
+type PlayerNameAreaProps = {
+  name: string
+  isCurrentTurn: boolean
+  children?: React.ReactNode
+}
+
+export const PlayerNameArea = React.memo(
+  ({ name, children, isCurrentTurn }: PlayerNameAreaProps) => (
+    <div className="player-name-area">
+      <div className="player-avatar">{isCurrentTurn ? '🙋‍♂️' : '🙍‍♂️'}</div>
+      {name}
+      <br />
+      {children}
+    </div>
+  )
+)
+
 export const BasePlayerArea = React.memo(
   ({
     player,
@@ -25,11 +42,9 @@ export const BasePlayerArea = React.memo(
           canSelectCard ? 'idle' : 'ready'
         } ${isCurrentTurn ? 'current' : ''}`}
       >
-        <div className="player-name-area">
-          {player.name}
-          <br />
+        <PlayerNameArea name={player.name} isCurrentTurn={isCurrentTurn}>
           {children}
-        </div>
+        </PlayerNameArea>
         <div className="hand">
           {player.hand.map((card, idx) => (
             <PlayerCard
@@ -43,10 +58,13 @@ export const BasePlayerArea = React.memo(
             />
           ))}
         </div>
-        <div className="discard">
-          {player.discarded.map((card, i) => (
-            <PlayerCard card={card} idx={i} key={i} isFlipped={false} />
-          ))}
+        <div className="discard-area">
+          {player.discarded.length > 0 && <div>Discard</div>}
+          <div className="discard">
+            {player.discarded.map((card, i) => (
+              <PlayerCard card={card} idx={i} key={i} isFlipped={false} />
+            ))}
+          </div>
         </div>
       </div>
     )

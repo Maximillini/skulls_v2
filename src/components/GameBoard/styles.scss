@@ -81,7 +81,8 @@ $z-1: 10;
     '. player1 .';
   grid-template-columns: 1fr 3fr 1fr;
   grid-template-rows: 1fr 3fr 1fr;
-  width: 60vw;
+  width: 80vw;
+  border-radius: 30%;
 
   .table {
     background-color: green;
@@ -144,6 +145,9 @@ $z-1: 10;
     display: flex;
     justify-content: space-evenly;
     position: relative;
+    .player-avatar {
+      font-size: 2em;
+    }
     .hand {
       display: flex;
       flex: 0 0 50%;
@@ -168,7 +172,8 @@ $z-1: 10;
     }
 
     &.current {
-      outline: 1px solid red;
+      border-radius: 14%;
+      border: 2px solid red;
     }
 
     &.player-1 {
