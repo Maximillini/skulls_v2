@@ -4,7 +4,7 @@ export type Player = {
   hand: Cards
   playedCards: Cards
   discarded: Cards
-  challengesWon: number
+  hasWonChallenge: boolean
   // TODO - Think of more descriptive name than 'ready'
   ready: boolean
   isComputer?: boolean
@@ -24,8 +24,15 @@ export type GameSlice = {
   currentHighBet: number
   flippedCards: FlippedCard[]
   startGame: () => void
+  setGameState: (
+    prop: keyof GameSlice,
+    value: number | string | boolean | []
+  ) => void
   changeToPhase: (phase: Phase) => void
-  startNextPhase: () => void
+  startNextPhase: (options?: {
+    playerHitSkull: boolean
+    playerId?: number
+  }) => void
 }
 
 export type PlayerSlice = {
@@ -45,6 +52,8 @@ export type PlayerSlice = {
   placeBet: (playerId: number, bet: number) => void
   passBet: (playerId: number) => void
   flipCard: (playerMatId: number, cardIdx: number) => void
+  returnAllPlayedCards: () => void
+  discardCard: (player: Player, cardIdx: number) => void
 }
 
 export type TurnSlice = {

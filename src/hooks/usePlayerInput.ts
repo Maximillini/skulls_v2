@@ -4,6 +4,7 @@ import {
   topUnflippedIndex,
   hasFlippedAllOwnCards,
   isCardFlipped,
+  sleep,
 } from '../store/utils'
 import { handleComputerTurns } from '../store/utils/ai'
 import { Phase, Player, Cards, Card } from '../types'
@@ -12,6 +13,7 @@ const HUMAN_PLAYER = 1
 
 export const usePlayerInput = () => {
   const phase = useGameStateStore.use.phase()
+  const startNextPhase = useGameStateStore.use.startNextPhase()
   const placeCard = useGameStateStore.use.placeCard()
   const players = useGameStateStore.use.players()
   const playerTurn = useGameStateStore.use.playerTurn()
@@ -24,6 +26,8 @@ export const usePlayerInput = () => {
   const setPlayerTurn = useGameStateStore.use.setPlayerTurn()
   const flippedCards = useGameStateStore.use.flippedCards()
   const currentHighBet = useGameStateStore.use.currentHighBet()
+  const setPlayerState = useGameStateStore.use.setPlayerState()
+  const discardCard = useGameStateStore.use.discardCard()
 
   const canSelectCard = (player: Player) =>
     (phase === 'opening' && !player.ready && player.playedCards.length < 1) ||
@@ -65,10 +69,27 @@ export const usePlayerInput = () => {
   const handleFlipCard = (playerMatId: number, idx: number, card: Card) => {
     flipCard(playerMatId, idx)
 
-    if (flippedCards.length === currentHighBet) return changeToPhase('opening')
-
     if (card === 0) {
-      return changeToPhase('discarding')
+      if (playerMatId === HUMAN_PLAYER) {
+        sleep(() =>
+          startNextPhase({ playerHitSkull: true, playerId: HUMAN_PLAYER })
+        )
+        return
+      }
+
+      sleep(() => startNextPhase({ playerHitSkull: true }))
+      return
+    }
+
+    if (flippedCards.length === currentHighBet - 1) {
+      if (playerTurn.hasWonChallenge) {
+        console.log(`${playerTurn.name} Wins!`)
+      }
+
+      return sleep(() => {
+        setPlayerState(playerTurn.id, 'hasWonChallenge', true)
+        startNextPhase()
+      })
     }
   }
 
@@ -93,6 +114,11 @@ export const usePlayerInput = () => {
 
   const handleChangePhase = (p: Phase) => changeToPhase(p)
 
+  const handleSelfDiscard = (cardIdx: number) => {
+    discardCard(players[HUMAN_PLAYER], cardIdx)
+    startNextPhase()
+  }
+
   return {
     phase,
     handlePlaceCard,
@@ -100,6 +126,7 @@ export const usePlayerInput = () => {
     handlePassBet,
     handleFlipCard,
     handleChangePhase,
+    handleSelfDiscard,
     deactivatePlayer,
     canSelectCard,
     setPlayerTurn,

@@ -1,4 +1,5 @@
 import { PlayerCard } from '.'
+import { usePhase } from '../../hooks/usePhase'
 import { usePlayerInput } from '../../hooks/usePlayerInput'
 import { useGameStateStore } from '../../store'
 import { Card, Cards, FlippedCard, Player } from '../../types'
@@ -10,6 +11,7 @@ export const PlayedCardStack = ({
   cards: Cards
   playerMat: Player
 }) => {
+  const { isPhase } = usePhase()
   const { handleFlipCard, isFlippable } = usePlayerInput()
   const playerTurn = useGameStateStore.use.playerTurn()
   const flippedCards = useGameStateStore.use.flippedCards()
@@ -20,12 +22,16 @@ export const PlayedCardStack = ({
     }
   }
 
+  if (!cards) return
+
   return (
     <>
-      {cards.map((card, idx) => {
-        const isFlipped = flippedCards.some(
-          (fc: FlippedCard) => fc.playerId === playerMat.id && fc.index === idx
-        )
+      {cards?.map((card, idx) => {
+        const isFlipped =
+          flippedCards.some(
+            (fc: FlippedCard) =>
+              fc.playerId === playerMat.id && fc.index === idx
+          ) && isPhase('flipping')
 
         return (
           <PlayerCard

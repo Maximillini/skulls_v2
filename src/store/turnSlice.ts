@@ -1,6 +1,9 @@
 import { StateCreator } from 'zustand'
-import { GameState, TurnSlice } from '../types'
+import { GameState, TurnSlice, Players } from '../types'
 import { getActivePlayers, getPlayerIndexById, stubPlayers } from './utils'
+
+const nonZeroRandom = (max: keyof Players) =>
+  Math.floor(Math.random() * max) + 1
 
 export const createTurnSlice: StateCreator<
   GameState,
@@ -8,7 +11,7 @@ export const createTurnSlice: StateCreator<
   [],
   TurnSlice
 > = (set, get) => ({
-  playerTurn: stubPlayers[2],
+  playerTurn: stubPlayers[nonZeroRandom(4)],
 
   setPlayerTurn: (playerId) =>
     set(

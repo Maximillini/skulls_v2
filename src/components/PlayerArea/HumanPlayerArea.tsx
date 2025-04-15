@@ -1,14 +1,20 @@
-import React, { useMemo, useState, useEffect } from 'react'
+import React, { useMemo, useState, useEffect, useCallback } from 'react'
 import { BasePlayerArea } from '.'
 import { useGameStateStore } from '../../store'
 import { usePlayer } from '../../hooks/usePlayer'
 import { usePlayerInput } from '../../hooks/usePlayerInput'
 import { usePhase } from '../../hooks/usePhase'
 import { getMaximumBet } from '../../store/utils'
+import { Card } from '../../types'
 
 export const HumanPlayerArea = React.memo(() => {
   const currentHighBet = useGameStateStore.use.currentHighBet()
-  const { handlePlaceCard, handlePassBet, handleChangePhase } = usePlayerInput()
+  const {
+    handlePlaceCard,
+    handlePassBet,
+    handleChangePhase,
+    handleSelfDiscard,
+  } = usePlayerInput()
   const { player, isPlayerTurn } = usePlayer(1)
   const { isPhase } = usePhase()
 
@@ -32,11 +38,21 @@ export const HumanPlayerArea = React.memo(() => {
     [isPhase, handlePassBet, handleChangePhase, isPlayerTurn]
   )
 
+  const getCardClickHandler = useCallback(
+    (card: Card, idx: number) => {
+      if (isPhase('opening') || isPhase('placing'))
+        return handlePlaceCard(player, card)
+
+      if (isPhase('discarding')) return handleSelfDiscard(idx)
+    },
+    [isPhase, handlePlaceCard, handleSelfDiscard, player]
+  )
+
   return (
     <BasePlayerArea
       player={player}
       isCurrentTurn={isPlayerTurn()}
-      onCardClick={(card) => handlePlaceCard(player, card)}
+      onCardClick={(card, idx) => getCardClickHandler(card, idx)}
       canSelectCard={isPhase('opening') || isPhase('placing')}
     >
       {userActionButtons}

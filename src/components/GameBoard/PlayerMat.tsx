@@ -6,7 +6,7 @@ export const PlayerMat = ({ playerId }: { playerId: number }) => {
 
   return (
     <div className={`player-mat-area player-${playerId}-mat`}>
-      <div className="player-mat">
+      <div className={`player-mat ${player.hasWonChallenge ? 'success' : ''}`}>
         <PlayedCardStack cards={player.playedCards} playerMat={player} />
       </div>
     </div>

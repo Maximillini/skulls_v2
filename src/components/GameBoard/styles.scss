@@ -1,5 +1,15 @@
 $card-back: purple;
 $player-mat-color: #405abbfa;
+$z-10: 100;
+$z-9: 90;
+$z-8: 80;
+$z-7: 70;
+$z-6: 60;
+$z-5: 50;
+$z-4: 40;
+$z-3: 30;
+$z-2: 20;
+$z-1: 10;
 
 @mixin base-card {
   border-radius: 100%;
@@ -8,8 +18,8 @@ $player-mat-color: #405abbfa;
   margin: 4px;
   padding: 1.8em;
   user-select: none;
-  transition: transform 0.5s, background-color 0.3s; /* Smooth flip transition */
-  transform-style: preserve-3d; /* Preserve 3D space for the card sides */
+  transition: transform 0.5s, background-color 0.3s;
+  transform-style: preserve-3d;
   position: relative;
   perspective: 1000px;
   background-color: $card-back;
@@ -28,12 +38,12 @@ $player-mat-color: #405abbfa;
   &:hover {
     top: -8px;
     box-shadow: rgba(10, 10, 10, 0.5) 0 14px 4px;
-    z-index: 100;
+    z-index: $z-10;
   }
 }
 
 @function rand($max) {
-  @return calc((-1 * $max) + (random($max) * 1.5px));
+  @return calc((-1 * $max) + (random($max) * 1.25px));
 }
 
 @function transform-on-flip($mult, $offset) {
@@ -54,7 +64,7 @@ $player-mat-color: #405abbfa;
         transform: rotateY(180deg)
           translateX(transform-on-flip(#{$i}, 100px))
           translateY(transform-on-flip(#{$i}, 100px));
-        z-index: calc(10 - #{$i});
+        z-index: calc($z-10 - #{$i});
       }
     }
   }
@@ -103,8 +113,15 @@ $player-mat-color: #405abbfa;
             @include face-up-card;
             padding: 0.8em;
             background-color: #222;
-            // transform: rotateY(180deg) translateX(-80px);
           }
+        }
+        &.success {
+          background-color: darken($player-mat-color, 20);
+          transition: transform 0.5s;
+          transform-style: preserve-3d;
+          position: relative;
+          perspective: 1000px;
+          transform: rotateY(180deg);
         }
       }
       &.player-1-mat {
@@ -132,6 +149,18 @@ $player-mat-color: #405abbfa;
       flex: 0 0 50%;
       .card {
         @include base-card;
+        &.face {
+          @include face-up-card;
+        }
+      }
+    }
+
+    .discard {
+      flex: 0 0 10%;
+      position: relative;
+      .card {
+        @include base-card;
+        @include card-stack;
         &.face {
           @include face-up-card;
         }

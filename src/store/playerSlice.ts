@@ -51,7 +51,6 @@ export const createPlayerSlice: StateCreator<
       'player/resetAllPlayersStatus'
     ),
 
-  // KEEP THIS FUNCTION PURE
   placeCard: (playerId, card) => {
     set(
       (state) =>
@@ -71,7 +70,6 @@ export const createPlayerSlice: StateCreator<
     )
   },
 
-  // KEEP THIS FUNCTION PURE
   placeBet: (playerId, bet) => {
     set(
       (state) => ({
@@ -102,6 +100,51 @@ export const createPlayerSlice: StateCreator<
       }),
       undefined,
       'player/flipCard'
+    )
+  },
+
+  returnAllPlayedCards: () => {
+    set(
+      (state) => {
+        const newPlayers = Object.fromEntries(
+          Object.entries(state.players).map(([id, player]) => [
+            id,
+            {
+              ...player,
+              hand: [...player.hand, ...player.playedCards],
+              playedCards: [],
+            },
+          ])
+        )
+        return { flippedCards: [], players: newPlayers }
+      },
+      false,
+      'players/returnAllPlayedCards'
+    )
+  },
+
+  discardCard: (player, cardIdx) => {
+    set(
+      (state) => {
+        const freshPlayer = state.players[player.id]
+        const handCopy = [...freshPlayer.hand]
+
+        return {
+          players: {
+            ...state.players,
+            [player.id]: {
+              ...freshPlayer,
+              discarded: [
+                ...freshPlayer.discarded,
+                ...handCopy.splice(cardIdx, 1),
+              ],
+              hand: handCopy,
+            },
+          },
+        }
+      },
+      undefined,
+      'player/computerDiscard'
     )
   },
 })
