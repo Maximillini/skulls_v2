@@ -77,24 +77,22 @@ export const usePlayerInput = () => {
       if (playerMatId === HUMAN_PLAYER) {
         setGameState('hitOwnSkull', true)
 
-        sleep(() => {
+        return sleep(() =>
           startNextPhase({ playerHitSkull: true, playerId: HUMAN_PLAYER })
-        })
-
-        return
+        )
       }
 
-      sleep(() => {
+      return sleep(() => {
         setGameState('isPaused', false)
         startNextPhase({ playerHitSkull: true })
       })
-      return
     }
 
     if (flippedCards.length === currentHighBet - 1) {
-      if (playerTurn.hasWonChallenge) {
+      const flippingPlayer = useGameStateStore.getState().players[playerTurn.id]
+      if (flippingPlayer.hasWonChallenge) {
         setGameState('isPaused', true)
-        return console.log(`${playerTurn.name} Wins!`)
+        return console.log(`${flippingPlayer.name} Wins!`)
       }
 
       return sleep(() => {

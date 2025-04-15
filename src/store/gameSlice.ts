@@ -69,9 +69,8 @@ export const createGameSlice: StateCreator<
       changeToPhase('opening')
     }
 
-    setTimeout(() => {
-      resetAllPlayersStatus('ready', false)
-      handleComputerTurns()
-    }, 0)
+    resetAllPlayersStatus('isInactive', false)
+    resetAllPlayersStatus('ready', false)
+    handleComputerTurns()
   },
 })
