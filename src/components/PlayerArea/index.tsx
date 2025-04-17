@@ -20,10 +20,14 @@ type PlayerNameAreaProps = {
 export const PlayerNameArea = React.memo(
   ({ name, children, isCurrentTurn }: PlayerNameAreaProps) => (
     <div className="player-name-area">
-      <div className="player-avatar">{isCurrentTurn ? '🙋‍♂️' : '🙍‍♂️'}</div>
-      {name}
+      <div className="avatar-container">
+        <div className={`player-avatar ${isCurrentTurn ? 'current' : ''}`}>
+          {isCurrentTurn ? '🙋‍♂️' : '🙍‍♂️'}
+        </div>
+      </div>
+      <div className="player-name">{name}</div>
       <br />
-      {children}
+      {children && <div className="player-actions-row">{children}</div>}
     </div>
   )
 )
@@ -40,7 +44,7 @@ export const BasePlayerArea = React.memo(
       <div
         className={`player player-${player.id} ${
           canSelectCard ? 'idle' : 'ready'
-        } ${isCurrentTurn ? 'current' : ''}`}
+        }`}
       >
         <PlayerNameArea name={player.name} isCurrentTurn={isCurrentTurn}>
           {children}
@@ -59,7 +63,7 @@ export const BasePlayerArea = React.memo(
           ))}
         </div>
         <div className="discard-area">
-          {player.discarded.length > 0 && <div>Discard</div>}
+          {player.discarded.length > 0 && <>Discard</>}
           <div className="discard">
             {player.discarded.map((card, i) => (
               <PlayerCard card={card} idx={i} key={i} isFlipped={false} />
@@ -74,5 +78,5 @@ export const BasePlayerArea = React.memo(
 export const ComputerPlayerArea = ({ playerId }: { playerId: number }) => {
   const { player, isPlayerTurn } = usePlayer(playerId)
 
-  return <BasePlayerArea player={player} isCurrentTurn={isPlayerTurn()} />
+  return <BasePlayerArea player={player} isCurrentTurn={isPlayerTurn} />
 }

@@ -8,7 +8,7 @@ export const usePlayer = (playerId: number) => {
   )
   const playedCards = player.playedCards
 
-  const isPlayerTurn = () => playerId === playerTurnId
+  const isPlayerTurn = playerId === playerTurnId
 
   return { player, isPlayerTurn, playedCards }
 }

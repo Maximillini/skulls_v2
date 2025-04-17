@@ -6,8 +6,10 @@ import { usePlayerInput } from '../../hooks/usePlayerInput'
 import { usePhase } from '../../hooks/usePhase'
 import { getMaximumBet } from '../../store/utils'
 import { Card } from '../../types'
+import { Modal } from '../shared/Modal'
 
 export const HumanPlayerArea = React.memo(() => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
   const currentHighBet = useGameStateStore.use.currentHighBet()
   const {
     handlePlaceCard,
@@ -19,25 +21,35 @@ export const HumanPlayerArea = React.memo(() => {
   const { player, isPlayerTurn } = usePlayer(1)
   const { isPhase } = usePhase()
 
-  const userActionButtons = useMemo(
-    () => (
+  const userActionButtons = useMemo(() => {
+    const handleClickPlaceBet = () => {
+      if (isPhase('placing') && isPlayerTurn) {
+        setIsMenuOpen(true)
+        handleChangePhase('betting')
+      }
+    }
+
+    return (
       <>
-        {isPhase('placing') && (
+        {(isPhase('placing') ||
+          (isPhase('betting') && currentHighBet !== getMaximumBet())) && (
           <button
-            onClick={() => handleChangePhase('betting')}
-            disabled={!isPlayerTurn()}
+            className="action-button"
+            onClick={handleClickPlaceBet}
+            disabled={!isPlayerTurn}
           >
-            Place Bet
+            Bet
           </button>
         )}
 
         {isPhase('betting') && (
-          <button onClick={() => handlePassBet()}>Pass</button>
+          <button className="action-button" onClick={() => handlePassBet()}>
+            Pass
+          </button>
         )}
       </>
-    ),
-    [isPhase, handlePassBet, handleChangePhase, isPlayerTurn]
-  )
+    )
+  }, [isPhase, handlePassBet, isPlayerTurn, handleChangePhase, currentHighBet])
 
   const getCardClickHandler = useCallback(
     (card: Card, idx: number) => {
@@ -51,22 +63,32 @@ export const HumanPlayerArea = React.memo(() => {
     [isPhase, handlePlaceCard, handleSelfDiscard, player, hitOwnSkull]
   )
 
+  const handleCloseModal = () => {
+    setIsMenuOpen(false)
+    if (currentHighBet === 0) handleChangePhase('placing')
+  }
+
   return (
-    <BasePlayerArea
-      player={player}
-      isCurrentTurn={isPlayerTurn()}
-      onCardClick={(card, idx) => getCardClickHandler(card, idx)}
-      canSelectCard={
-        isPhase('opening') ||
-        isPhase('placing') ||
-        (isPhase('discarding') && hitOwnSkull)
-      }
-    >
-      {userActionButtons}
-      {isPhase('betting') && isPlayerTurn() && (
+    <>
+      <Modal
+        isOpen={isMenuOpen && isPhase('betting') && isPlayerTurn}
+        onClose={handleCloseModal}
+      >
         <UserBetMenu currentHighBet={currentHighBet} />
-      )}
-    </BasePlayerArea>
+      </Modal>
+      <BasePlayerArea
+        player={player}
+        isCurrentTurn={isPlayerTurn}
+        onCardClick={(card, idx) => getCardClickHandler(card, idx)}
+        canSelectCard={
+          isPhase('opening') ||
+          isPhase('placing') ||
+          (isPhase('discarding') && hitOwnSkull)
+        }
+      >
+        {userActionButtons}
+      </BasePlayerArea>
+    </>
   )
 })
 
@@ -85,23 +107,27 @@ const UserBetMenu = ({ currentHighBet }: { currentHighBet: number }) => {
   }
 
   return (
-    <>
+    <div className="user-bet-menu-container">
       <div className="user-bet-menu">
-        Bet: {bet}
-        <input
-          type="button"
-          value="-"
-          onClick={() => handleAdjustBet('-')}
-          disabled={bet === currentHighBet + 1}
-        />
-        <input
-          type="button"
-          value="+"
-          onClick={() => handleAdjustBet('+')}
-          disabled={bet === getMaximumBet()}
-        />
-        <input type="button" value="Bet" onClick={() => handlePlaceBet(bet)} />
+        <div>
+          <button
+            onClick={() => handleAdjustBet('-')}
+            disabled={bet === currentHighBet + 1}
+          >
+            {'<'}
+          </button>
+          <span className="bet-amount">Bet: {bet}</span>
+          <button
+            onClick={() => handleAdjustBet('+')}
+            disabled={bet === getMaximumBet()}
+          >
+            {'>'}
+          </button>
+        </div>
+        <button className="submit-bet" onClick={() => handlePlaceBet(bet)}>
+          Place Bet!
+        </button>
       </div>
-    </>
+    </div>
   )
 }
