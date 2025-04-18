@@ -1,6 +1,18 @@
 import { useGameStateStore } from '..'
 import { isCardFlipped } from '.'
 import { Player, Players, FlippedCard, GameState } from './../../types/index'
+import { faker } from '@faker-js/faker'
+
+const capitalize = (string: string) => {
+  const stringArray = string.split('')
+
+  stringArray[0] = stringArray[0].toUpperCase()
+
+  return stringArray.join('')
+}
+
+export const getRandomName = () =>
+  `${capitalize(faker.word.adjective())}_${capitalize(faker.word.noun())}`
 
 export const allPlayersReady = (players: Players) =>
   Object.values(players).every((player) => player.ready)
@@ -64,7 +76,7 @@ export const hasFlippedAllOwnCards = (
 
 const fakePlayer: Player = {
   id: 1,
-  name: 'Player-1',
+  name: getRandomName(),
   hand: [1, 1, 1, 0],
   playedCards: [],
   discarded: [],
@@ -77,7 +89,7 @@ const fakePlayer: Player = {
 
 export const stubPlayers = {
   1: fakePlayer,
-  2: { ...fakePlayer, id: 2, name: 'Player-2', isComputer: true },
-  3: { ...fakePlayer, id: 3, name: 'Player-3', isComputer: true },
-  4: { ...fakePlayer, id: 4, name: 'Player-4', isComputer: true },
+  2: { ...fakePlayer, id: 2, name: getRandomName(), isComputer: true },
+  3: { ...fakePlayer, id: 3, name: getRandomName(), isComputer: true },
+  4: { ...fakePlayer, id: 4, name: getRandomName(), isComputer: true },
 }

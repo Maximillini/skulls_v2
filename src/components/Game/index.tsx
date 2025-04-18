@@ -5,14 +5,11 @@ import { GameBoard } from '../GameBoard'
 
 export const Game = () => {
   const { phase, isPhase } = usePhase()
-  const playerTurn = useGameStateStore.use.playerTurn()
   const currentHighBet = useGameStateStore.use.currentHighBet()
   const flippedCards = useGameStateStore.use.flippedCards()
 
   return (
-    <>
-      {!isPhase('opening') && `Current Turn: ${playerTurn.name}`}
-      <br />
+    <div className="game-container">
       {isPhase('flipping') &&
         `Flips Remaining: ${currentHighBet - flippedCards.length}`}
       {isPhase('betting') &&
@@ -20,6 +17,6 @@ export const Game = () => {
       <br />
       Phase: {`${phase.toUpperCase()}`}
       <GameBoard />
-    </>
+    </div>
   )
 }
